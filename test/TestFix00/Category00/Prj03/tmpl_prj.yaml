@@ -1,0 +1,11 @@
+ProjectName: "Prj03"
+Description: "Prj03"
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name"
+    Replace: "Basic Test"
+  WW_PrintLetter_WW:
+    Desc: "The letter to print out"
+    Replace: "Hello World"
+

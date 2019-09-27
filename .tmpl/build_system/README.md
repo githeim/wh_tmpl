@@ -1,0 +1,3 @@
+Build system related codes are here.
+ex)
+makefile project, cmake project, scons project ...
