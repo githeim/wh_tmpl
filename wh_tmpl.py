@@ -185,9 +185,15 @@ def Find_Prj_Ctx(target_prj_name,prj_list):
   (Duplret,Dupllog) = Chk_Duplicated_Prj(prj_list)
   if Duplret == True :
     return (False,None)
+
   for [prj_name,prj_desc,prj_path,ref_prj] in prj_list:
     if (target_prj_name == prj_name) :
       prj_ctx = [prj_name,prj_desc,prj_path,ref_prj]
+
+  if (prj_ctx == None):
+    # :x: the case of cannot find target project
+    return (False,[None,None,None,None])
+
   return (True,prj_ctx)
 
 ##
@@ -206,7 +212,7 @@ def Copy_Tmpl_Prj_file(
   target_file_path =None
   (ret,prj_list) = Get_Tmpl_Prj_List(prj_search_path)
   
-  (ret,[prj_name,prj_desc,prj_path]) = Find_Prj_Ctx(target_prj_name,prj_list)
+  (ret,[prj_name,prj_desc,prj_path,ref_prj]) = Find_Prj_Ctx(target_prj_name,prj_list)
   if (ret == True) :
     target_file_path = target_path+target_prj_name+".tmpl.yaml"
     prj_file_path = prj_path+'/'+'tmpl_prj.yaml'
@@ -249,12 +255,19 @@ def Set_Tmpl_Prj(target_prj_name, target_dir, prj_file=None,
   if (ret == False) :
     return (ret,log)
   if (len(prj_list) == 0) :
-    log+='Err Set_Tmpl_Prj(); Cannot find any project on [%s]' % prj_search_path
+    log+='Err: Set_Tmpl_Prj(); Cannot find any project on [%s]' \
+            % prj_search_path
     print(log)
     return (False,log)
   # :x: Get project entity
   (ret,[prj_name,prj_desc,prj_path,ref_prj])  = \
                                         Find_Prj_Ctx(target_prj_name,prj_list)
+  if (ret == False) :
+    log+= \
+       "Err: Can't find project [%s]'s context! can't find project [%s]"% \
+       (target_prj_name,target_prj_name)
+    print (log)
+    return (False,log)
   # :x: Get Marker file ; default is tmpl_prj.yaml
   if (prj_file == None) :
     prj_file = prj_path+"/tmpl_prj.yaml"
@@ -283,24 +296,25 @@ def Set_Tmpl_Prj(target_prj_name, target_dir, prj_file=None,
   return (ret,log)
 
 def PrintHelp():
-  
+  exe_filename = os.path.basename(sys.argv[0])
+  print("\n")
   print("How to Use ; \n")
   print("* Print out template projects list  ; ")
-  print(sys.argv[0]+" list")
+  print("$ "+exe_filename+" list")
   print("\n")
   print("* Get marker file from template project  ; ")
-  print(sys.argv[0]+" get Template_Prj_Name")
-  print("ex) "+sys.argv[0]+" get hellowolrd ")
+  print("$ "+exe_filename+" get Template_Prj_Name")
+  print("ex) $ "+exe_filename+" get hellowolrd ")
   print("\n")
   print("* Set template project to target path ; ")
   print("   Markers are replaced to default value ")
-  print(sys.argv[0]+" set Template_Prj_Name Target_Dir")
-  print("ex) "+sys.argv[0]+" set hellowolrd ../workspace")
+  print("$ "+exe_filename+" set Template_Prj_Name Target_Dir")
+  print("ex) $ "+exe_filename+" set hellowolrd ../workspace")
   print("\n")
   print("* Set template project to target path with marker file(*.yaml); ")
   print("   Markers are replaced to the values in marker file")
-  print(sys.argv[0]+" set Template_Prj_Name Target_Dir marker.yaml")
-  print("ex) "+sys.argv[0]+" set hellowolrd ../workspace ./tmpl_helloworld.yaml")
+  print("$ "+exe_filename+" set Template_Prj_Name Target_Dir marker.yaml")
+  print("ex) $ "+exe_filename+" set hellowolrd ../workspace ./tmpl_helloworld.yaml")
 
 def main(argv) :
   ret = False
