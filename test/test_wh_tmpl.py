@@ -110,6 +110,57 @@ class general_unit_test(unittest.TestCase):
     if ( ret == True) :
       shutil.rmtree('./tmp_workspace')
 
+#  def test_Replace_Filename_byMarkers(self):
+#    prj_search_path = './TestFix02_replaceFileName'
+#    Replace_Dirname_byMarkers(prj_search_path,
+#            [
+#          ['WW_ProjectName_WW', 'Test_Prj'], 
+#          ['WW_PrintLetter_WW', 'Hello World']
+#            ]
+#            )
+  def test_Prj_Dependency(self):
+     prj_search_path = './TestFix03_dependency'
+     (ret,prj_list) = Get_Tmpl_Prj_List(prj_search_path)
+     listDependency = Get_Prj_Dependency('PrjA',prj_list)
+     
+     self.assertEqual(listDependency,
+         [ 
+           "PrjA",
+           "PrjB","PrjC",
+           "PrjD","PrjE","PrjF","PrjG",
+           "PrjH","PrjI"
+         ]
+         )
+  def test_Get_Tmpl_Prj_Output(self):
+    prj_search_path = './TestFix03_dependency'
+    (ret,prj_list) = Get_Tmpl_Prj_List(prj_search_path)
+    (listPath,listMarker) = Get_Tmpl_Prj_Output('PrjA',prj_list,None)
+    self.assertEqual(listMarker,
+    [
+     ['WW_ProjectName_WW','PrjA'],['WW_MajorVer_WW','2'],['WW_MinorVer_WW','2'], 
+     ['WW_ProjectName_WW','PrjB'],['WW_MajorVer_WW','2'],['WW_MinorVer_WW','0'], 
+     ['WW_ProjectName_WW','PrjC'],['WW_MajorVer_WW','2'],['WW_MinorVer_WW','0'], 
+     ['WW_ProjectName_WW','PrjD'],['WW_MajorVer_WW','1'],['WW_MinorVer_WW','0'],
+     ['WW_ProjectName_WW','PrjE'],['WW_MajorVer_WW','1'],['WW_MinorVer_WW','0'],
+     ['WW_ProjectName_WW','PrjF'],['WW_MajorVer_WW','1'],['WW_MinorVer_WW','0'],
+     ['WW_ProjectName_WW','PrjG'],['WW_MajorVer_WW','1'],['WW_MinorVer_WW','0'],
+     ['WW_ProjectName_WW','PrjH'],['WW_MajorVer_WW','1'],['WW_MinorVer_WW','0'],
+     ['WW_ProjectName_WW','PrjI'],['WW_MajorVer_WW','1'],['WW_MinorVer_WW','0']
+    ]
+        )
+    self.assertEqual(listPath,
+        [
+          './TestFix03_dependency/PrjI', 
+          './TestFix03_dependency/PrjH', 
+          './TestFix03_dependency/PrjG', 
+          './TestFix03_dependency/PrjF', 
+          './TestFix03_dependency/PrjE', 
+          './TestFix03_dependency/PrjD', 
+          './TestFix03_dependency/PrjC', 
+          './TestFix03_dependency/PrjB', 
+          './TestFix03_dependency/PrjA'
+        ]
+        )
 if __name__ == '__main__':
   unittest.main() 
 

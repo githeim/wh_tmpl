@@ -1,0 +1,20 @@
+ProjectName:  "ros2_pkg"
+Description:  "ROS2 base pkg template"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: []
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project(=Package) Name, this should be lower cases"
+    Replace: "ros2_base_pkg"
+  WW_Project_Author_Email_WW:
+    Desc: "Write Your email"
+    Replace: "writeyour@email.com"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "1"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "0"

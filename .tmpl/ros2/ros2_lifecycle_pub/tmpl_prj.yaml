@@ -1,0 +1,31 @@
+ProjectName:  "ros2_lifecycle_pub"
+Description:  "ROS2 publisher lifecycle node template"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: []
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project(=Package) Name, this should be lower cases"
+    Replace: "test_lifecycle_pub"
+  WW_Project_Author_Email_WW:
+    Desc: "Write Your email"
+    Replace: "writeyour@email.com"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "1"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "0"
+  WW_NodeClassName_WW:
+    Desc: "Node Class Name, this is used for class name and class file name"
+    Replace: "CTest_Lifecycle_Node"
+
+  WW_PublishTopicName_WW:
+    Desc: "The name of publish topic name.This should be lower case"
+    Replace: "test_topic00"
+  WW_Publish_Message_WW:
+    Desc: "the string message to publish"
+    Replace: "Hell World!!"
+

@@ -5,6 +5,19 @@ import unittest
 import yaml
 import shutil
 import distutils.core
+import queue
+from shutil import copytree, ignore_patterns
+
+##
+# @brief exclude file patterns when copy the template
+#        Ex) vim swap file (.swp)
+# @return 
+def Get_ExcludeFilePattern():
+  exclude_pattern = {
+          '.*.swp',
+          }
+  return exclude_pattern
+
 
 def Get_Default_SearchPath():
   return os.path.dirname(os.path.abspath(__file__))+"/.tmpl"
@@ -144,18 +157,13 @@ def Get_Prj_List_Report(
 # @brief replace files by template prj file
 #
 # @param replace_target_path[IN]
-# @param tmpl_prj_file_path[IN]
+# @param marker_replace_list[IN]
 #
 # @return 
 def Replace_Markers(
         replace_target_path,
         marker_replace_list
         ) :
-#with open("Stud.txt", "rt") as fin:
-#    with open("out.txt", "wt") as fout:
-#        for line in fin:
-#            fout.write(line.replace('A', 'Orange'))
-
   # :x: Get files from replace_target_path
   for (path, dir, files) in os.walk(replace_target_path):
     for file in files :
@@ -172,6 +180,49 @@ def Replace_Markers(
       shutil.move(path+"/"+file+"-_tmp_-",path+"/"+file)
   return True
 
+##
+# @brief Replace file name according to Markerlist
+#
+# @param replace_target_path
+# @param marker_replace_list
+#
+# @return 
+def Replace_Filename_byMarkers(
+        replace_target_path,
+        marker_replace_list
+        ) :
+  for (path, dir, files) in os.walk(replace_target_path):
+    for file in files :
+      for (marker,replace) in marker_replace_list:
+        strChangedFileName = file.replace(marker,replace)
+        if (strChangedFileName != file) :
+          try:
+            shutil.move(path+"/"+file,path+"/"+strChangedFileName)
+          except FileNotFoundError as e:
+            print ("The file ["+path+"/"+file + "] is already changed")
+  return True
+
+##
+# @brief Replace directory name according to Markerlist
+#
+# @param replace_target_path
+# @param marker_replace_list
+#
+# @return 
+def Replace_Dirname_byMarkers(
+    replace_target_path,
+    marker_replace_list
+    ) :
+  for (path, directories, files) in os.walk(replace_target_path):
+    for dir in directories :
+      for (marker,replace) in marker_replace_list:
+        strChangedDirName = dir.replace(marker,replace)
+        if (strChangedDirName != dir) :
+          try :
+            shutil.move(path+"/"+dir,path+"/"+strChangedDirName)
+          except FileNotFoundError as e:
+            print ("The directory ["+path+"/"+dir + "] is already changed")
+  return True
 
 ##
 # @brief Find specific project context from project list
@@ -236,13 +287,85 @@ def Get_Markers(prj_file):
               [marker,ctx['MarkerList'][marker]['Replace']])
   return (True,marker_replace_list)
 
- 
+##
+# @brief Get Project Context including its refrence projects
+#
+# @param target_prj_name[IN] the project to set up
+# @param target_dir[IN]      directory to set
+# @param prj_list[IN]        whole project context list
+# @param prj_file[IN]        project file to apply
+#
+# @return 
+def Get_Tmpl_Prj_Output(target_prj_name, prj_list, prj_file=None):
+  listMarkerOutput = []
+  listPathOutput=[]
+  ret = False
+  log = ''
+  if (len(prj_list) == 0) :
+    log+='Err: Get_Tmpl_Prj_Output(); Cannot find any project ' 
+    print(log)
+    return (False,log)
+  # :x: Get project entity
+  (ret,[prj_name,prj_desc,prj_path,ref_prj])  = \
+                                        Find_Prj_Ctx(target_prj_name,prj_list)
+  if (ret == False) :
+    log+= \
+       "Err: Can't find project [%s]'s context! can't find project [%s]"% \
+       (target_prj_name,target_prj_name)
+    print (log)
+    return (False,log)
+  listDependency = Get_Prj_Dependency(target_prj_name,prj_list)
+
+  for item in listDependency : 
+    (ret,[prj_name,prj_desc,prj_path,ref_prj])  = \
+        Find_Prj_Ctx(item,prj_list)
+    # :x: Get Marker file ; default is tmpl_prj.yaml
+    listPathOutput.insert(0,prj_path)
+    prj_filepath=""
+    if (prj_file == None) :
+      prj_filepath = prj_path+"/tmpl_prj.yaml"
+    else :
+      prj_filepath = prj_path+"/"+prj_file
+    (ret,marker_replace_list) = Get_Markers(prj_filepath)
+    listMarkerOutput += marker_replace_list
+  return (listPathOutput,listMarkerOutput)
+
+##
+# @brief Get the dependencies of the project
+#
+# @param target_prj_name
+# @param prj_list
+#
+# @return 
+def Get_Prj_Dependency( target_prj_name, prj_list ):
+  listDependency = []
+  setDuplicationChecker = set()
+  queueSearch = queue.Queue()
+  listDependency.append(target_prj_name)
+  queueSearch.put(target_prj_name)
+  setDuplicationChecker.add( target_prj_name )
+
+  while (queueSearch.qsize() != 0 ) :
+    searchPrj_name = queueSearch.get()
+    # :x: Get project entity
+    (ret,[prj_name,prj_desc,prj_path,ref_prj])  = \
+                                          Find_Prj_Ctx(searchPrj_name,prj_list)
+    listDependency+=ref_prj
+    for item in ref_prj:
+      if ( (item in setDuplicationChecker) == False) :
+        setDuplicationChecker.add(item)
+        queueSearch.put(item)
+      else :
+        print ("Warning ; Find dependency duplication ; " + item)
+
+  return listDependency
+
 ##
 # @brief Set the project to target directory
 #
 # @param target_prj_name[IN] the project to set up
 # @param target_dir[IN]      directory to set
-# @param prj_file[IN]        project file to appy
+# @param prj_file[IN]        project file to apply
 # @param prj_search_path[IN] project search path (default ./tmpl ) 
 #
 # @return 
@@ -259,40 +382,21 @@ def Set_Tmpl_Prj(target_prj_name, target_dir, prj_file=None,
             % prj_search_path
     print(log)
     return (False,log)
-  # :x: Get project entity
-  (ret,[prj_name,prj_desc,prj_path,ref_prj])  = \
-                                        Find_Prj_Ctx(target_prj_name,prj_list)
-  if (ret == False) :
-    log+= \
-       "Err: Can't find project [%s]'s context! can't find project [%s]"% \
-       (target_prj_name,target_prj_name)
-    print (log)
-    return (False,log)
-  # :x: Get Marker file ; default is tmpl_prj.yaml
-  if (prj_file == None) :
-    prj_file = prj_path+"/tmpl_prj.yaml"
 
-  # :x: Apply reference projects
-  for prj in ref_prj:
-    print ( "setup Reference Project ; [%s] "% (prj))
-    print ( "Project file; [%s] "% (prj_file))
-    Set_Tmpl_Prj(prj,target_dir,prj_file,prj_search_path)
-    print ( "Reference Project ; [%s] is Done \n"% (prj))
-  if (ret == False) :
-    return (ret,log)
-  # :x: Copy template to target dir
-  distutils.dir_util.copy_tree(prj_path,target_dir)
-  shutil.copymode(prj_path,target_dir)
-  # :x: Remove Template Prj file(tmpl_prj.yaml)
-  os.remove(target_dir+"/tmpl_prj.yaml")
+  (listPath,listMarker) = Get_Tmpl_Prj_Output(target_prj_name,prj_list,prj_file)
+  # copy template files to target_dir
+  for item in listPath:
+    distutils.dir_util.copy_tree(item,target_dir)
+    # :x: Remove Template Prj file(tmpl_prj.yaml)
+    os.remove(target_dir+"/tmpl_prj.yaml")
 
-  # :x: Get markers
-  (ret,marker_replace_list) = Get_Markers(prj_file)
-
-  # :x: Replace according to markers
-  Replace_Markers(target_dir,marker_replace_list)
-
-
+  # :x: Replace file contents according to markers
+  Replace_Markers(target_dir,listMarker)
+  # :x: Replace file name according to markers
+  print (listMarker)
+  Replace_Filename_byMarkers(target_dir,listMarker)
+  # :x: Replace directory name according to markers
+  Replace_Dirname_byMarkers(target_dir,listMarker)
   return (ret,log)
 
 def PrintHelp():

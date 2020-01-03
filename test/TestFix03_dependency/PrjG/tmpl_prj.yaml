@@ -1,0 +1,19 @@
+ProjectName:  "PrjG"
+Description:  "PrjG for Test"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: []
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "PrjG"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "1"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "0"
+
+
