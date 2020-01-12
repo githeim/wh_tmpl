@@ -14,10 +14,10 @@ MarkerList:
     Replace: "writeyour@email.com"
   WW_MajorVer_WW:
     Desc: "Major version"
-    Replace: "1"
+    Replace: "121212"
   WW_MinorVer_WW:
     Desc: "Minor version"
-    Replace: "0"
+    Replace: "343456"
   WW_NodeClassName_WW:
     Desc: "Node Class Name, this is used for class name and class file name"
     Replace: "CTest_Lifecycle_Sub"

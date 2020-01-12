@@ -1,5 +1,5 @@
-ProjectName:  "ros2_lifecycle_node"
-Description:  "ROS2 lifecycle node template. This creates only lifecyle node related"
+ProjectName:  "ros2_lifecycle_server"
+Description:  "ROS2 lifecycle server template"
 MajorVersion: "1"
 MinorVersion: "0"
 
@@ -8,7 +8,7 @@ Reference_Prj: ['ros2_pkg']
 MarkerList:
   WW_ProjectName_WW:
     Desc: "Write Your Project(=Package) Name, this should be lower cases"
-    Replace: "test_lifecycle_node"
+    Replace: "test_lifecycle_server"
   WW_Project_Author_Email_WW:
     Desc: "Write Your email"
     Replace: "writeyour@email.com"
@@ -20,5 +20,5 @@ MarkerList:
     Replace: "343456"
   WW_NodeClassName_WW:
     Desc: "Node Class Name, this is used for class name and class file name"
-    Replace: "CTest_Lifecycle_Node"
+    Replace: "CTest_Lifecycle_Server"
 

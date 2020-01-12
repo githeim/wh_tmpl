@@ -9,10 +9,10 @@ int main(int argc, char *argv[])
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exe;
 
-  std::shared_ptr<WW_NodeClassName_WW> pElvSysNode =
+  std::shared_ptr<WW_NodeClassName_WW> pNode =
     std::make_shared<WW_NodeClassName_WW>("WW_ProjectName_WW");
 
-  exe.add_node(pElvSysNode->get_node_base_interface());
+  exe.add_node(pNode->get_node_base_interface());
   exe.spin();
 
   rclcpp::shutdown();

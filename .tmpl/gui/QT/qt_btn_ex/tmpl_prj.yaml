@@ -11,9 +11,9 @@ MarkerList:
     Replace: "QT_button_ex"
   WW_MajorVer_WW:
     Desc: "Major version"
-    Replace: "1"
+    Replace: "121212"
   WW_MinorVer_WW:
     Desc: "Minor version"
-    Replace: "0"
+    Replace: "343456"
 
 

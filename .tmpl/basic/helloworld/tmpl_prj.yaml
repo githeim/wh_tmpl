@@ -11,10 +11,10 @@ MarkerList:
     Replace: "HelloWorld"
   WW_MajorVer_WW:
     Desc: "Major version"
-    Replace: "1"
+    Replace: "121212"
   WW_MinorVer_WW:
     Desc: "Minor version"
-    Replace: "0"
+    Replace: "343456"
   WW_PrintLetter_WW:
     Desc: "The letter to print out"
     Replace: "Hello World"

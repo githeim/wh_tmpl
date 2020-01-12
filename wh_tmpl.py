@@ -5,6 +5,7 @@ import unittest
 import yaml
 import shutil
 import distutils.core
+import fnmatch
 import queue
 from shutil import copytree, ignore_patterns
 
@@ -15,6 +16,7 @@ from shutil import copytree, ignore_patterns
 def Get_ExcludeFilePattern():
   exclude_pattern = {
           '.*.swp',
+          'tmpl_prj.yaml',
           }
   return exclude_pattern
 
@@ -38,6 +40,32 @@ def Find_PrjFiles(
       if filename == tmpl_file_name:
         pathSet.add("%s/%s" % (path, filename))
   return pathSet
+
+def Is_IgrnoreFile_Pattern(strFilename, dicPatterns) :
+  ret = False
+  for strPattern in dicPatterns:
+    if ( fnmatch.fnmatch(strFilename,strPattern) == True):
+      ret = True
+      break
+  return ret
+
+
+def Get_IgrnoredFiles(strTargetPath, dicPatterns):
+  ret = []
+  for (path, dir, files) in os.walk(strTargetPath):
+    for filename in files:
+      if (Is_IgrnoreFile_Pattern(filename,dicPatterns) ):
+        ret.append(path+'/'+filename)
+  return ret
+  
+def RemoveFiles(listFiles):
+  if (len(listFiles) == 0) :
+    return
+  print ('remove target ; '+str(listFiles))
+  for targetfile in listFiles:
+    os.remove(targetfile)
+
+
 
 ##
 # @brief Check the required field in template project file(*.yaml)
@@ -167,6 +195,9 @@ def Replace_Markers(
   # :x: Get files from replace_target_path
   for (path, dir, files) in os.walk(replace_target_path):
     for file in files :
+      if ( Is_IgrnoreFile_Pattern(file ,Get_ExcludeFilePattern()) ):
+        print ("ignore case,  file name  : "+path+"/"+file)
+        continue
       with open (path+"/"+file,'r') as fin :
         with open(path+"/"+file+"-_tmp_-", "wt",errors='ignore') as fout:
           print("Creating & Replacing :"+path+"/"+file)
@@ -174,7 +205,7 @@ def Replace_Markers(
             for (marker,replace) in marker_replace_list:
               #print ("marker ; %s, %s"% (marker,replace))
               #print (line.replace(marker,replace))
-              line = line.replace(marker,replace)
+              line = line.replace(str(marker),replace)
             fout.write(line)
       shutil.copystat(path+"/"+file,path+"/"+file+"-_tmp_-")
       shutil.move(path+"/"+file+"-_tmp_-",path+"/"+file)
@@ -194,7 +225,7 @@ def Replace_Filename_byMarkers(
   for (path, dir, files) in os.walk(replace_target_path):
     for file in files :
       for (marker,replace) in marker_replace_list:
-        strChangedFileName = file.replace(marker,replace)
+        strChangedFileName = file.replace(str(marker),replace)
         if (strChangedFileName != file) :
           try:
             shutil.move(path+"/"+file,path+"/"+strChangedFileName)
@@ -216,7 +247,7 @@ def Replace_Dirname_byMarkers(
   for (path, directories, files) in os.walk(replace_target_path):
     for dir in directories :
       for (marker,replace) in marker_replace_list:
-        strChangedDirName = dir.replace(marker,replace)
+        strChangedDirName = dir.replace(str(marker),replace)
         if (strChangedDirName != dir) :
           try :
             shutil.move(path+"/"+dir,path+"/"+strChangedDirName)
@@ -272,7 +303,15 @@ def Copy_Tmpl_Prj_file(
 
   return (ret,target_file_path)
 
-def Get_Markers(prj_file):
+##
+# @brief Get Marker from template prj file
+#
+# @param prj_file[IN]
+# @param bRevert[IN]  revert flag, if it is True maker tuples are reverted
+#                     This is for exporting project
+#
+# @return 
+def Get_Markers(prj_file,bRevert = False):
   ret = True
   marker_replace_list = []
 
@@ -282,11 +321,15 @@ def Get_Markers(prj_file):
       return (false,None)
     MarkerList = ctx['MarkerList']
     for marker in MarkerList:
-      #print('marker ; %s , replace ; %s' % (marker,ctx['MarkerList'][marker]['Replace']))
-      marker_replace_list.append(
-              [marker,ctx['MarkerList'][marker]['Replace']])
-  return (True,marker_replace_list)
+      if (bRevert == False) :
+        marker_replace_list.append(
+                [marker,ctx['MarkerList'][marker]['Replace']])
+      elif (bRevert == True) :
+        # :x: Revert 
+        marker_replace_list.append(
+                [ctx['MarkerList'][marker]['Replace'],marker])
 
+  return (True,marker_replace_list)
 ##
 # @brief Get Project Context including its refrence projects
 #
@@ -295,7 +338,7 @@ def Get_Markers(prj_file):
 # @param prj_list[IN]        whole project context list
 # @param prj_file[IN]        project file to apply
 #
-# @return 
+# @return list of template paths and markers
 def Get_Tmpl_Prj_Output(target_prj_name, prj_list, prj_file=None):
   listMarkerOutput = []
   listPathOutput=[]
@@ -325,7 +368,7 @@ def Get_Tmpl_Prj_Output(target_prj_name, prj_list, prj_file=None):
     if (prj_file == None) :
       prj_filepath = prj_path+"/tmpl_prj.yaml"
     else :
-      prj_filepath = prj_path+"/"+prj_file
+      prj_filepath = prj_file
     (ret,marker_replace_list) = Get_Markers(prj_filepath)
     listMarkerOutput += marker_replace_list
   return (listPathOutput,listMarkerOutput)
@@ -361,6 +404,52 @@ def Get_Prj_Dependency( target_prj_name, prj_list ):
   return listDependency
 
 ##
+# @brief Export Template project , the markers will be applied on the files and
+#               directories
+# @param base_prj_path[IN]      base project path to export
+# @param dest_path[IN]          the path to get output
+# @param template_file_path[IN] applying template prj file for reverting markers
+#
+# @return 
+def Export_Tmpl_Prj(
+            base_prj_path       = "./", 
+            dest_path           = "../out",
+            template_file_path  = "./wh_tmpl.py"
+            ) :
+  ret = False
+  log = ''
+  print ('Export Template Project' )
+  print ('Base Project Path : '      + base_prj_path     )
+  print ('Export Destination Path :' + dest_path         )
+  print ('Template File Path :'      + template_file_path)
+
+  # :x: chk template file exist
+  if (os.path.isfile(template_file_path) == False) :
+    log+='Cannot Find template file path ; ' + template_file_path
+    ret = False
+    return (ret,log)
+
+  # :x: Copy base_prj_path to dest_path
+  distutils.dir_util.copy_tree(base_prj_path,dest_path)
+
+  # :x: Remove the files that is ignored from file patterns
+  listRemoveFiles = Get_IgrnoredFiles(dest_path,Get_ExcludeFilePattern())
+  RemoveFiles(listRemoveFiles)
+
+  # :x: Replace file contents according to markers
+  (ret,marker_replace_list) = Get_Markers(template_file_path,True)
+  Replace_Markers(dest_path,marker_replace_list)
+  # :x: Replace file name according to markers
+  Replace_Filename_byMarkers(dest_path,marker_replace_list)
+  # :x: Replace directory name according to markers
+  Replace_Dirname_byMarkers(dest_path,marker_replace_list)
+
+  # :x: Copy template file to destination path
+  shutil.copy2(template_file_path,dest_path)
+
+  return (ret,log)
+
+##
 # @brief Set the project to target directory
 #
 # @param target_prj_name[IN] the project to set up
@@ -389,11 +478,13 @@ def Set_Tmpl_Prj(target_prj_name, target_dir, prj_file=None,
     distutils.dir_util.copy_tree(item,target_dir)
     # :x: Remove Template Prj file(tmpl_prj.yaml)
     os.remove(target_dir+"/tmpl_prj.yaml")
+    # :x: Remove the files that is ignored from file patterns
+    listRemoveFiles = Get_IgrnoredFiles(target_dir,Get_ExcludeFilePattern())
+    RemoveFiles(listRemoveFiles)
 
   # :x: Replace file contents according to markers
   Replace_Markers(target_dir,listMarker)
   # :x: Replace file name according to markers
-  print (listMarker)
   Replace_Filename_byMarkers(target_dir,listMarker)
   # :x: Replace directory name according to markers
   Replace_Dirname_byMarkers(target_dir,listMarker)
@@ -419,6 +510,12 @@ def PrintHelp():
   print("   Markers are replaced to the values in marker file")
   print("$ "+exe_filename+" set Template_Prj_Name Target_Dir marker.yaml")
   print("ex) $ "+exe_filename+" set hellowolrd ../workspace ./tmpl_helloworld.yaml")
+  print("\n")
+  print("* export template project to destination path from source project path ; ")
+  print("   Markers are applied from source project path according to markers")
+  print("$ "+exe_filename+" ex source_project_Filepath Target_Dir template.yaml")
+  print("ex) $ "+exe_filename+" ex ./ ../out ./tmpl_helloworld.yaml")
+
 
 def main(argv) :
   ret = False
@@ -440,10 +537,16 @@ def main(argv) :
     target_dir = argv[3]
     prj_file = argv[4]
     (ret,log) = Set_Tmpl_Prj(target_prj_name,target_dir,prj_file)
-
-
-
-
+  elif ((len(sys.argv) <= 5 and (len(sys.argv) >= 2 )  and argv[1] == 'ex')):
+    argNumber =len(sys.argv) 
+    if   ( argNumber == 2 ):
+      (ret,log) = Export_Tmpl_Prj()
+    elif   ( argNumber == 3 ):
+      (ret,log) = Export_Tmpl_Prj(argv[2])
+    elif ( argNumber == 4 ):
+      (ret,log) = Export_Tmpl_Prj(argv[2],argv[3])
+    elif ( argNumber == 5 ):
+      (ret,log) = Export_Tmpl_Prj(argv[2],argv[3],argv[4])
   if (ret == True ) :
     return 0
   else :
