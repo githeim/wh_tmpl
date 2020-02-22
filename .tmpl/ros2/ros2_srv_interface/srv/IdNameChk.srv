@@ -1,4 +1,5 @@
 int64  id_number
 string person_name
 ---
-bool is_correct
+bool  is_correct
+int64 return_id_number
