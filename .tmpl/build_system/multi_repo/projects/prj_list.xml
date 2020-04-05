@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="wh_dev"  
+           path="dev/wh_dev" 
+           revision="master" 
+           upstream="master"
+           />
+  <project name="wh_tmpl"  
+           path="dev/wh_tmpl" 
+           revision="master" 
+           />
+  <!-- the following is for the reference of the project
+    project name="template"  
+    path="dev/template" 
+    revision="master" 
+    clone-depth="1"
+    groups="TestGroupA"
+    /-->
+
+</manifest>
+
+

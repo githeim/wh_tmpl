@@ -1,0 +1,20 @@
+ProjectName:  "multi_repo"
+Description:  "multi repo template is using git-repo AKA google repo"
+MajorVersion: "121212"
+MinorVersion: "343456"
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "New_Project"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
+
+  WW_PrintLetter_WW:
+    Desc: "The letter to print out"
+    Replace: "Hell World"
+

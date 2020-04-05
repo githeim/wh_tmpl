@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <!-- common environment variables -->
+    <include name="include/common_env.xml" />
+    <!-- projects -->
+    <include name="projects/prj_list.xml" />
+</manifest>

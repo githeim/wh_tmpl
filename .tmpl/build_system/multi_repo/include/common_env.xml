@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <!-- remote repository info -->
+    <remote  name="remote_repo"
+      fetch="https://github.com/githeim/"
+             />
+    <default revision="master"
+             remote="remote_repo"
+             sync-j="16" 
+             sync-c="true"
+             sync-s="true"
+             sync-tags="false" />
+</manifest>
+
