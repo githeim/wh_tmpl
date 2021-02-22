@@ -1,6 +1,7 @@
 #!/bin/bash
 # prerequisite packages for windheim template
 
+sudo apt-get update
 sudo apt-get install -y build-essential                             
 sudo apt-get install -y cmake                                       
 sudo apt-get install -y python python-dev python3                   
