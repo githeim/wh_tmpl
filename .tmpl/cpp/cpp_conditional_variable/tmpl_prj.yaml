@@ -1,0 +1,21 @@
+ProjectName:  "cpp_conditional_variable"
+Description:  "cpp std::conditional_variable example"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['cmake_template']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "cpp_conditional_variable"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "1"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "1"
+  WW_PrintLetter_WW:
+    Desc: "The letter to print out"
+    Replace: "std::conditional_variable example"
+
