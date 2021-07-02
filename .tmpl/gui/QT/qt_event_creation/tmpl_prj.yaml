@@ -1,0 +1,19 @@
+ProjectName:  "qt_event_creation"
+Description:  "QT framework event creation-synthesizing example"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['qt_btn_ex']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "QT_event_creation"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
+
+
