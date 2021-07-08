@@ -10,6 +10,13 @@ int main(int argc, char *argv[]) {
       __FUNCTION__,__LINE__);
 
   printf("WW_PrintLetter_WW : Time Measurement (4 seconds)\n");
+
+  using namespace std::chrono;
+  milliseconds ms = duration_cast< milliseconds >(
+      system_clock::now().time_since_epoch()
+      );
+  printf("\033[1;33m[%s][%d] :x: From the epoch since 1970, %ld milliseconds\033[m\n",__FUNCTION__,__LINE__,ms.count());
+
   printf("\033[1;33m[%s][%d] :x: Start count\033[m\n",
       __FUNCTION__,__LINE__);
   auto start= std::chrono::system_clock::now();
