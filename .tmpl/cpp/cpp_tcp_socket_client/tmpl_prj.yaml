@@ -1,0 +1,21 @@
+ProjectName:  "cpp_tcp_socket_client"
+Description:  "socket client example,this project match up to cpp_tcp_socket_server"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['cmake_template']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "cpp_tcp_socket_client"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
+  WW_PrintLetter_WW:
+    Desc: "The letter to print out"
+    Replace: "cpp_tcp_socket_client example"
+
