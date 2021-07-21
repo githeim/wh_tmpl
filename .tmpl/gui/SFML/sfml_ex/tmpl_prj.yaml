@@ -1,0 +1,19 @@
+ProjectName:  "sfml_ex"
+Description:  "SFML basic example"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['sfml_setup']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "SFML_example"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
+
+

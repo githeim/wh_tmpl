@@ -9,16 +9,16 @@ SET ( PROJECT_VERSION_MINOR WW_MinorVer_WW)
 SET ( CMAKE_BUILD_TYPE       Debug )
 SET ( CMAKE_VERBOSE_MAKEFILE true )
 
+SET ( OUTPUT_ELF
+  "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.out"
+  )
+
 # :x: For extention of cmake file 
 # :x: you can add *.cmake file, under ./cmake/ directory
 FILE( GLOB INCLUDE_CMAKE_FILES cmake/*.cmake)
 FOREACH( FILE ${INCLUDE_CMAKE_FILES})
   include( ${FILE})
 ENDFOREACH()
-
-SET ( OUTPUT_ELF
-  "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.out"
-  )
 
 SET ( INCLUDE_DIR
         include
@@ -54,12 +54,12 @@ SET ( LIBRARY_LISTS ${LIBRARY_LISTS}
  
 # "Debug" 형상 한정 컴파일 옵션, 링크 옵션
 SET ( CMAKE_C_FLAGS_DEBUG   "-O0 -g3" )
-SET ( CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -pthread" )
+SET ( CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -pthread -std=gnu++17" )
 SET ( CMAKE_EXE_LINKER_FLAGS_DEBUG "" )
  
 # "Release" 형상 한정 컴파일 옵션, 링크 옵션
 SET ( CMAKE_C_FLAGS_RELEASE "-O2" )
-SET ( CMAKE_CXX_FLAGS_RELEASE "-O2 -pthread" )
+SET ( CMAKE_CXX_FLAGS_RELEASE "-O2 -pthread -std=gnu++17" )
 SET ( CMAKE_EXE_LINKER_FLAGS_RELEASE "" )
  
 SET ( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BUILD_TYPE} )
@@ -85,4 +85,11 @@ TARGET_LINK_LIBRARIES(${TEST_RUNNER}
                        gtest 
                        ${CMAKE_PROJECT_NAME})
 
+# deploy "resource" if the directory "resource" is exist
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resource") 
+  ADD_CUSTOM_COMMAND(TARGET ${OUTPUT_ELF} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E 
+    copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resource ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resource
+    )
+endif()
 

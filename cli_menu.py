@@ -6,9 +6,6 @@ import unittest
 import urwid
 import wh_tmpl
 
-choices = u'Chapman Cleese Gilliam Idle Jones Palin'.split()
-
-
 class CMenuFrame :
   ##
   # @brief Setup Menu Frame
