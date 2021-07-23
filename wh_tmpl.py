@@ -201,12 +201,20 @@ def Replace_Markers(
       with open (path+"/"+file,'r') as fin :
         with open(path+"/"+file+"-_tmp_-", "wt",errors='ignore') as fout:
           print("Creating & Replacing :"+path+"/"+file)
-          for line in fin:
-            for (marker,replace) in marker_replace_list:
-              #print ("marker ; %s, %s"% (marker,replace))
-              #print (line.replace(marker,replace))
-              line = line.replace(str(marker),replace)
-            fout.write(line)
+          try :
+            for line in fin:
+              for (marker,replace) in marker_replace_list:
+                #print ("marker ; %s, %s"% (marker,replace))
+                #print (line.replace(marker,replace))
+                line = line.replace(str(marker),replace)
+              fout.write(line)
+          except UnicodeDecodeError as e:
+              print("ERR!, UnicodeDecodeError in file ["+path+"/"+file+"]"+
+                    " this file is ignored now"
+                      )
+              os.remove(path+"/"+file+"-_tmp_-")
+              continue
+
       shutil.copystat(path+"/"+file,path+"/"+file+"-_tmp_-")
       shutil.move(path+"/"+file+"-_tmp_-",path+"/"+file)
   return True
