@@ -20,6 +20,20 @@ def Get_ExcludeFilePattern():
           }
   return exclude_pattern
 
+##
+# @brief exclude file patterns when replace the marker
+#        Ex) binary type files, *.jpeg, *.ttf ..
+# @return 
+def Get_ReplacementIgnoreFilePattern():
+  exclude_pattern = {
+          '*.ttf',
+          '*.png',
+          '*.jpg',
+          '*.jpeg',
+          }
+  return exclude_pattern
+
+
 
 def Get_Default_SearchPath():
   return os.path.dirname(os.path.abspath(__file__))+"/.tmpl"
@@ -197,6 +211,9 @@ def Replace_Markers(
     for file in files :
       if ( Is_IgrnoreFile_Pattern(file ,Get_ExcludeFilePattern()) ):
         print ("ignore case,  file name  : "+path+"/"+file)
+        continue
+      if ( Is_IgrnoreFile_Pattern(file ,Get_ReplacementIgnoreFilePattern()) ):
+        print ("replacement ignore case, file name  : "+path+"/"+file)
         continue
       with open (path+"/"+file,'r') as fin :
         with open(path+"/"+file+"-_tmp_-", "wt",errors='ignore') as fout:
