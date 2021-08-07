@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
   sf::Texture Texture00;
-  if (!Texture00.loadFromFile("resource/pics/SFML_ex.png"))
+  if (!Texture00.loadFromFile("resource/pics/gui_common_ex00.png"))
   {
     exit(1);
   }
