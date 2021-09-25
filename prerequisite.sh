@@ -1,6 +1,14 @@
 #!/bin/bash
 # prerequisite packages for windheim template
 
+if [[ $(lsb_release -cs) == "bionic" ]]; then
+  echo "Ubuntu 18.x"
+  curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+  sudo apt -y install nodejs
+elif [[ $(lsb_release -cs) == "focal" ]]; then
+  echo "Ubuntu 20.x"
+fi
+
 sudo apt-get update
 sudo apt-get install -y build-essential                             
 sudo apt-get install -y cmake                                       
