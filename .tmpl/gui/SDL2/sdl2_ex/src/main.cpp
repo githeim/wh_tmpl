@@ -116,16 +116,13 @@ double Frame_Rate_Control(double dbFPS){
   static auto Frame_start = std::chrono::system_clock::now();
   static auto Frame_end   = std::chrono::system_clock::now();
   std::chrono::duration<double> Frame_diff_SEC;
-
   std::chrono::duration<double> Actual_Frame_diff_SEC;
 
   Frame_end = std::chrono::system_clock::now();
   Frame_diff_SEC = Frame_end - Frame_start;
   // :x:  Reference frame interval
   double dbRef_SEC= 1.0f/dbFPS;
-  printf("\033[1;33m[%s][%d] :x: %f seconds elapsed %f frames ref %f\033[m\n",
-      __FUNCTION__,__LINE__,Frame_diff_SEC.count() , 1.0f/Frame_diff_SEC.count(),
-      dbRef_SEC);
+
   if (Frame_diff_SEC.count() < dbRef_SEC) {
     usleep((dbRef_SEC - Frame_diff_SEC.count())*1000000);
   }
