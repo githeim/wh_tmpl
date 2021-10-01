@@ -345,14 +345,17 @@ def Get_Markers(prj_file,bRevert = False):
     if (not 'MarkerList' in ctx) :
       return (false,None)
     MarkerList = ctx['MarkerList']
-    for marker in MarkerList:
-      if (bRevert == False) :
-        marker_replace_list.append(
-                [marker,ctx['MarkerList'][marker]['Replace']])
-      elif (bRevert == True) :
-        # :x: Revert 
-        marker_replace_list.append(
-                [ctx['MarkerList'][marker]['Replace'],marker])
+    if (not MarkerList is None):
+      for marker in MarkerList:
+        if (bRevert == False) :
+          marker_replace_list.append(
+                  [marker,ctx['MarkerList'][marker]['Replace']])
+        elif (bRevert == True) :
+          # :x: Revert 
+          marker_replace_list.append(
+                  [ctx['MarkerList'][marker]['Replace'],marker])
+    else:
+      print ("No Marker List in ["+ctx['ProjectName']+"] pkg")
 
   return (True,marker_replace_list)
 ##
