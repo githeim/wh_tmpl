@@ -16,10 +16,10 @@ def generate_launch_description():
   ])
 
   node = launch_ros.actions.LifecycleNode(
-          node_name = PACKAGE_NAME,
+          name = PACKAGE_NAME,
           package = PACKAGE_NAME,
-          node_executable = NODE_EXECUTABLE,
-          node_namespace = NODE_NAMESPACE,
+          executable = NODE_EXECUTABLE,
+          namespace = NODE_NAMESPACE,
           parameters=[],
           output = 'screen',
           )
