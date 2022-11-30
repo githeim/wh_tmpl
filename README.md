@@ -5,7 +5,17 @@ This is the general template engine for programming. This template engine is de-
 signed for C/C++, Python Codings. You can add your template in the directory 
 './.tmpl' and apply the codes where you want. 
 
-= How to use
+# install
+
+```
+$ git clone https://github.com/githeim/wh_tmpl.git
+$ cd wh_tmpl
+$ ./install_wh_tmpl.sh 
+```
+
+
+
+# How to use
 
 How to Use ;
 
