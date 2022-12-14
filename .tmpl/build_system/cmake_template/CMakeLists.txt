@@ -87,14 +87,16 @@ TARGET_LINK_LIBRARIES(${OUTPUT_ELF} ${LIBRARY_LISTS} )
 SET (TEST_RUNNER test_${OUTPUT_ELF})
 ADD_EXECUTABLE( ${TEST_RUNNER} ${TEST_FILES} )
 if (DEFINED DEPENDENCY_LIST) 
-  ADD_DEPENDENCIES(${OUTPUT_ELF} ${DEPENDENCY_LIST})
+  ADD_DEPENDENCIES(${TEST_RUNNER} ${DEPENDENCY_LIST})
 endif()
 
 TARGET_INCLUDE_DIRECTORIES (${TEST_RUNNER} PUBLIC ${INCLUDE_DIR} )
 TARGET_LINK_LIBRARIES(${TEST_RUNNER} 
                        -pthread
                        gtest 
-                       ${CMAKE_PROJECT_NAME})
+                       ${CMAKE_PROJECT_NAME}
+                       ${LIBRARY_LISTS}
+                       )
 
 # deploy "resource" if the directory "resource" is exist
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resource") 
