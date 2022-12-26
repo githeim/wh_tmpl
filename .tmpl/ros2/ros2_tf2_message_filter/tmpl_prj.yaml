@@ -1,0 +1,12 @@
+ProjectName:  "ros2_tf2_message_filter"
+Description:  "ROS2 tf2_message_filter example"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['ros2_pkg']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project(=Package) Name, this should be lower cases"
+    Replace: "test_tf2_message_filter"
+
