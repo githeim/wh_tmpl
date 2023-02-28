@@ -25,13 +25,16 @@ SET ( INCLUDE_DIR
         include
         )
 # Sources for library build
-FILE( GLOB LIBSRC_FILES ${LIBSRC_FILES} libsrc/*.cpp)
+FILE( GLOB GLOB_LIBSRC_FILES ${LIBSRC_FILES} libsrc/*.cpp)
+SET(LIBSRC_FILES ${LIBSRC_FILES} ${GLOB_LIBSRC_FILES})
 
 # sources for exec
-FILE( GLOB SRC_FILES ${SRC_FILES} src/*.cpp)
+FILE( GLOB GLOB_SRC_FILES ${SRC_FILES} src/*.cpp)
+SET(SRC_FILES ${SRC_FILES} ${GLOB_SRC_FILES})
 
 # sources for testing
-FILE( GLOB TEST_FILES ${TEST_FILES} test/*.cpp)
+FILE( GLOB GLOB_TEST_FILES ${TEST_FILES} test/*.cpp)
+SET(TEST_FILES ${TEST_FILES} ${GLOB_TEST_FILES})
 
  
 SET ( CMAKE_C_COMPILER "gcc" )
