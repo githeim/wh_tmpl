@@ -78,6 +78,7 @@ int main(int argc, char *argv[]) {
     // Start the Dear ImGui frame
     ImGui_ImplSDLRenderer_NewFrame();
     ImGui_ImplSDL2_NewFrame();
+    // if there is NewFrame() function call, ImGui::Render() should be called
     ImGui::NewFrame();
     // Create Window
     {
