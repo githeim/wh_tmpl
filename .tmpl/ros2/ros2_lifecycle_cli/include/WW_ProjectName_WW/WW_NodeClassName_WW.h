@@ -62,6 +62,10 @@ private:
   bool Get_MainLoopTrigger();
   void Set_MainLoopTrigger(bool bVal);
   void MainLoop(rclcpp::Client<IdNameChk>::SharedPtr pCli); 
+  float m_fEnv_Val_0;
+  float m_fEnv_Val_1;
+  float m_fEnv_Val_2;
+  float m_fEnv_Val_3;
 
 };
 

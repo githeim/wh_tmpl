@@ -58,6 +58,10 @@ private:
                     const std::shared_ptr<IdNameChk::Response> response);
 
   rclcpp::Service<IdNameChk>::SharedPtr m_pServerInstance;
+  float m_fEnv_Val_0;
+  float m_fEnv_Val_1;
+  float m_fEnv_Val_2;
+  float m_fEnv_Val_3;
 };
 
 

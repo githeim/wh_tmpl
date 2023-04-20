@@ -50,12 +50,16 @@ public:
   on_error(const rclcpp_lifecycle::State & state);
 
   
-  void Data_CallBack(const std_msgs::msg::String::SharedPtr pMsg);
+  void Data_CallBack(const std_msgs::msg::String & Msg);
 
   std::shared_ptr<rclcpp::Subscription<std_msgs::msg::String>> m_pSub;
 
   void publish();
 private:
+  float m_fEnv_Val_0;
+  float m_fEnv_Val_1;
+  float m_fEnv_Val_2;
+  float m_fEnv_Val_3;
 
 };
 

@@ -1,0 +1,7 @@
+#/**: # :x: when namespace is used 
+WW_ProjectName_WW:
+  ros__parameters:
+    env_val_0: 0.0  # :x: tailoring these variables what you wants
+    env_val_1: 0.1
+    env_val_2: 0.2
+    env_val_3: 0.3

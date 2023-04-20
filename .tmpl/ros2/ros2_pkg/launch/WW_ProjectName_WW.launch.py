@@ -1,6 +1,7 @@
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
+import os
 import launch.actions
 import launch_ros.actions.node
 from launch.actions import LogInfo
@@ -20,7 +21,12 @@ def generate_launch_description():
           package = PACKAGE_NAME,
           executable = NODE_EXECUTABLE,
           namespace = NODE_NAMESPACE,
-          parameters=[],
+          parameters=[
+            os.path.join(
+              get_package_share_directory('WW_ProjectName_WW'),
+              'params', 'WW_ProjectName_WW_params.yaml'
+              )
+            ],
           output = 'screen',
           )
   # When the node reaches the 'inactive' state, make it to the 'activate'

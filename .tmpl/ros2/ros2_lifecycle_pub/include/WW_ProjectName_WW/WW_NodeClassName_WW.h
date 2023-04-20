@@ -54,6 +54,10 @@ public:
   std::shared_ptr<rclcpp::TimerBase> m_pTimer;
   void publish();
 private:
+  float m_fEnv_Val_0;
+  float m_fEnv_Val_1;
+  float m_fEnv_Val_2;
+  float m_fEnv_Val_3;
 
 };
 
