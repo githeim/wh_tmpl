@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+To open in the GROOT , this file should be opened before opening the test_tree.xml
+-->
+<root>
+  <TreeNodesModel>
+    <!-- ##### ACTION NODES ##### -->
+    <Action ID="MoveToGoal">
+      <input_port name="x">Target Goal X</input_port>
+      <input_port name="y">Target Goal Y</input_port>
+      <input_port name="yaw">Target Goal Yaw</input_port>
+    </Action>
+    <Action ID="OpenDoor">
+      <input_port name="Door">The Door to open</input_port>
+    </Action>
+
+    <!-- ##### CONDITION NODES ##### -->
+    <Condition ID="BatteryOK">
+    </Condition>
+
+  </TreeNodesModel>
+</root>

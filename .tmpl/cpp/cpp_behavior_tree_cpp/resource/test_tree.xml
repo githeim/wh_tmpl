@@ -1,0 +1,13 @@
+ <root main_tree_to_execute = "MainTree" >
+   <include path="test_tree_nodes.xml"/>
+     <BehaviorTree ID="MainTree">
+        <ReactiveSequence name="root">
+            <BatteryOK/>
+            <MoveToGoal x="11.2" y="21.5" yaw="1.57" />
+            <OpenDoor Door="FrontDoor"/>
+            <MoveToGoal x="5.2" y="3.5" yaw="-1.57" />
+            <OpenDoor Door="SideDoor"/>
+        </ReactiveSequence>
+     </BehaviorTree>
+ </root>
+
