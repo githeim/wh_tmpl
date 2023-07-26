@@ -1,0 +1,21 @@
+ProjectName:  "gas_tutorials"
+Description:  "GAS(GNU Assembler) tutorials"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: []
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "popen_example"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
+  WW_PrintLetter_WW:
+    Desc: "The letter to print out"
+    Replace: "GAS(GNU Assembler) tutorials"
+
