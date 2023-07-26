@@ -24,6 +24,8 @@ using namespace std::chrono_literals;
 
 using namespace rclcpp_lifecycle;
 
+void Set_bStopSpin(const bool& bVal);
+bool Get_bStopSpin(); 
 
 class WW_NodeClassName_WW : public rclcpp_lifecycle::LifecycleNode
 {

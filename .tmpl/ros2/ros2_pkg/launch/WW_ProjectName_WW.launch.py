@@ -45,6 +45,26 @@ def generate_launch_description():
         ],
       )
     )
+  exit_evt_hwnd = launch.actions.RegisterEventHandler(
+      launch.event_handlers.OnProcessExit(
+        target_action = node,
+        on_exit=[
+          LogInfo(msg ='scheduler process exit'),
+          ]
+        )
+      )
+
+  shutdown_evt_hwnd = launch.actions.RegisterEventHandler(
+    launch_ros.event_handlers.OnStateTransition(
+      target_lifecycle_node = node, goal_state='finalized',
+      entities=[
+        launch.actions.LogInfo(
+          msg = PACKAGE_NAME +
+          " reached the 'shutdown' state"),
+        ],
+      )
+    )
+
 
   # Make the node take the 'configure' transition.
   emit_configure_transition = launch.actions.EmitEvent(
@@ -55,6 +75,8 @@ def generate_launch_description():
     )
 
   ld.add_action(evt_hwnd)
+  ld.add_action(exit_evt_hwnd)
+  ld.add_action(shutdown_evt_hwnd)
   ld.add_action(node)
   ld.add_action(emit_configure_transition)
 

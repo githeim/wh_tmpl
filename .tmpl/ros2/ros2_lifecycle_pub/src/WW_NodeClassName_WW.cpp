@@ -57,6 +57,8 @@ WW_NodeClassName_WW::on_shutdown(const State & ){
   m_pTimer.reset();
   m_pPub.reset();
 
+  // Stop the spin
+  Set_bStopSpin(true);
   return node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
