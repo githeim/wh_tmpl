@@ -1,0 +1,21 @@
+ProjectName:  "ros2_get_parameter"
+Description:  "ROS2 get the parameter of other node example. This package get the parameter of test_lifecycle_pub. Run ros2_lifecycle_pub package first for testing this package.This package shows the change of parameter in test_lifecycle_pub"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['ros2_pkg']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project(=Package) Name, this should be lower cases"
+    Replace: "test_get_parameter"
+  WW_Project_Author_Email_WW:
+    Desc: "Write Your email"
+    Replace: "writeyour@email.com"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
+
