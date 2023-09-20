@@ -14,6 +14,8 @@ WW_NodeClassName_WW::WW_NodeClassName_WW(const std::string & node_name, bool int
   RCLCPP_INFO(get_logger(), "env_val_1: %f", this->m_fEnv_Val_1);
   RCLCPP_INFO(get_logger(), "env_val_2: %f", this->m_fEnv_Val_2);
   RCLCPP_INFO(get_logger(), "env_val_3: %f", this->m_fEnv_Val_3);
+  // :x: variable parameter
+  this->declare_parameter<int>("publish_cnt", 0);
 }
 
 node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -89,6 +91,7 @@ WW_NodeClassName_WW::publish() {
   }
   m_pPub->publish(std::move(msg));
 
+  this->set_parameter(rclcpp::Parameter("publish_cnt",(int)count));
   return ;
 }
 
