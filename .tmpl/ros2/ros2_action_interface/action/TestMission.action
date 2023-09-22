@@ -1,0 +1,9 @@
+# Goal
+geometry_msgs/PoseStamped pose
+---
+# Result
+bool result
+---
+# Feedback
+int32 completion_percentage
+string[] passed_goals
