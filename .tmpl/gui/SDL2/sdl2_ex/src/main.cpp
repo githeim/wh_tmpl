@@ -86,6 +86,18 @@ int DeInit_Fonts(TTF_Font* &pFont) {
 	TTF_CloseFont( pFont );
   return 0;
 }
+
+/**
+ * @brief Create Texture of Text. warning! pTxtTexture should be destroy after
+ *        using it.(ex :  SDL_DestroyTexture(pTxtTexture);) it causes memory leak
+ *
+ * @param pTxtTexture[OUT]
+ * @param pFont[IN] font instance to use
+ * @param strText[IN] text to draw
+ * @param pRenderer[IN] renderer to use
+ *
+ * @return 
+ */
 int DrawText(SDL_Texture* &pTxtTexture,TTF_Font* &pFont,
     std::string strText,SDL_Renderer* &pRenderer) 
 {
@@ -176,13 +188,14 @@ int main(int argc, char *argv[]) {
   // Draw Text
   if (
       DrawText(pTxtTexture,pFont,
-        std::string("Text Test: Press Q , to exit"),pRenderer)
+        std::string("Q : exit, a/s : rotate the picture"),pRenderer)
      ) {
     printf("\033[1;31m[%s][%d] :x: Draw Text error \033[m\n",
         __FUNCTION__,__LINE__);
     return -1;
   }
   SDL_QueryTexture(pTxtTexture, NULL, NULL, &Txt_Pos.w, &Txt_Pos.h);
+  SDL_DestroyTexture(pTxtTexture);
 
   SDL_Event Evt;
   bool bQuit = false;
@@ -212,9 +225,9 @@ int main(int argc, char *argv[]) {
     SDL_SetRenderDrawColor(pRenderer, 55, 55, 55, SDL_ALPHA_OPAQUE);
     // draw text
     DrawText(pTxtTexture,pFont,
-        std::string("Text Test: Press Q , to exit,FPS =") +std::to_string(dbActualFPS),pRenderer);
+        std::string("q : exit, a/s : rotate the picture , FPS =") +std::to_string((int)(dbActualFPS)),pRenderer);
     SDL_RenderCopy(pRenderer, pTxtTexture, NULL, &Txt_Pos );
-
+    SDL_DestroyTexture(pTxtTexture);
     // render
     SDL_RenderPresent(pRenderer);
 
