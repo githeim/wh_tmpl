@@ -12,12 +12,18 @@ $ git clone https://github.com/githeim/wh_tmpl.git
 $ cd wh_tmpl
 $ ./install_wh_tmpl.sh 
 ```
-
+this script register the path to your bash shell(.bashrc)
 
 
 # How to use
 
 How to Use ;
+
+* Use CLI(command-line interface)
+```
+$ cli_menu.py
+```
+You can choose the template with CLI.
 
 * Print out template projects list  ;
 ./wh_tmpl.py list
