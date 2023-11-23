@@ -1,0 +1,17 @@
+ProjectName:  "py_textual_ex"
+Description:  "python textual ,text based UI framework, example"
+MajorVersion: "1"
+MinorVersion: "0"
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "Textual_EX"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
+
+

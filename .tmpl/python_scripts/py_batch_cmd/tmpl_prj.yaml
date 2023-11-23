@@ -1,4 +1,4 @@
-ProjectName:  "batch_cmd_py"
+ProjectName:  "py_batch_cmd"
 Description:  "python batch command script template"
 MajorVersion: "1"
 MinorVersion: "0"
@@ -6,7 +6,7 @@ MinorVersion: "0"
 MarkerList:
   WW_ProjectName_WW:
     Desc: "Write Your Project Name, this variable should not have space"
-    Replace: "QT_button_ex"
+    Replace: "batch_cmd_ex"
   WW_MajorVer_WW:
     Desc: "Major version"
     Replace: "121212"
