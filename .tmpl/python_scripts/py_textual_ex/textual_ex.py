@@ -8,6 +8,7 @@ from textual.widgets import Button, Footer, Header, Static
 from textual.widgets import Label, ListItem, ListView, Log,RichLog,DirectoryTree
 from textual.screen import ModalScreen
 from textual.containers import Grid
+from textual import events 
 
 Options ={ 
     "touch A":    "create file A",
@@ -56,6 +57,14 @@ class ConfirmScreen(ModalScreen[int]):
       self.dismiss(0)
     elif event.button.id == "No" : 
       self.dismiss(1)
+  def on_key(self, event: events.Key) -> None:
+    print ("Key : ") 
+    print (event.key) 
+    if ( event.key == 'left' ) : 
+      self._move_focus(-1)
+    elif (event.key == 'right' ) :
+      self._move_focus(1)
+
 
 class Textual_EX_App(App):
   """A Textual app example """
@@ -117,6 +126,6 @@ class Textual_EX_App(App):
 
 
 if __name__ == "__main__":
-  app = WW_ProjectName_WW_App()
+  app = Textual_EX_App()
   app.run()
 
