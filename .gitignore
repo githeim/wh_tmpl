@@ -105,3 +105,6 @@ venv.bak/
 
 # vim
 *.swp
+
+# local gtest build
+gtest_build
