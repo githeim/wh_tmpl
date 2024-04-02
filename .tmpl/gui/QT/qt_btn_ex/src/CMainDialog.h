@@ -4,7 +4,7 @@
 #include <QtWidgets>
 #include <QPushButton>
 #include <QGridLayout>
-
+#include <QGraphicsView>
 class CMainDialog : public QDialog
 {
   Q_OBJECT
@@ -30,6 +30,10 @@ private:
 
   QPushButton *m_pBtnExit;
   QLabel      *m_pLabel00;
+
+  QGraphicsView *m_pGraphicsView;
+  QGraphicsScene *m_pGraphicsScene;
+  QGraphicsEllipseItem *m_pEllipse;
 
 };
 
