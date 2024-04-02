@@ -1,0 +1,8 @@
+<library path="ROS2_RVIZ_Plugin">
+  <class 
+    name="ros2_rviz_plugin::CROS2_rviz_plugin" 
+    type="ros2_rviz_plugin::CROS2_rviz_plugin" 
+    base_class_type="rviz_common::Panel">
+    <description> example of rviz plugin in Panel  </description>
+  </class>
+</library>
