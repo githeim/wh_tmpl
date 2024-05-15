@@ -1,0 +1,20 @@
+ProjectName:  "ros2_rclpy_tf2_listener"
+Description:  "ros2 tf2 listener with rclpy example. this python code print out the robot(base_link) location periodically "
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: [ ]
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project(=Package) Name, this should be lower cases"
+    Replace: "rclpy_tf2_frame_listener"
+  WW_Project_Author_Email_WW:
+    Desc: "Write Your email"
+    Replace: "writeyour@email.com"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "121212"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "343456"
