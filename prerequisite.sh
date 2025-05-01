@@ -22,19 +22,7 @@ sudo apt-get install -y g++ lcov doxygen graphviz rpcbind
 sudo apt-get install -y gcc-arm-linux-gnueabi g++-arm-linux-gnueabi 
 sudo apt-get install -y build-essential                             
 sudo apt-get install -y ninja-build                                 
-                                                                
-pip3 install urwid                                              
+
+sudo apt-get install -y python3-urwid
 pip3 install pyyaml                                             
-
-# google test installation
-mkdir -p gtest_build
-pushd gtest_build
-git clone https://github.com/google/googletest.git
-popd
-mkdir -p gtest_build/googletest/build
-
-pushd gtest_build/googletest/build
-cmake ..
-make -j`nproc`
-sudo make install 
-popd
+sudo apt-get install -y libgtest-dev
