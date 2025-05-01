@@ -9,3 +9,4 @@ ln -s $WH_TMPL_PATH/wh_tmpl.py
 ln -s $WH_TMPL_PATH/.tmpl
 popd
 echo PATH=\$PATH:$LINK_PATH >> ~/.bashrc
+source ~/.bashrc

@@ -27,14 +27,5 @@ pip3 install urwid
 pip3 install pyyaml                                             
 
 # google test installation
-mkdir -p gtest_build
-pushd gtest_build
-git clone https://github.com/google/googletest.git
-popd
-mkdir -p gtest_build/googletest/build
+sudo apt-get install libgtest-dev -y
 
-pushd gtest_build/googletest/build
-cmake ..
-make -j`nproc`
-sudo make install 
-popd
