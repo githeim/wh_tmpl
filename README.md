@@ -21,9 +21,12 @@ How to Use ;
 
 * Use CLI(command-line interface)
 ```
-$ cli_menu.py
+$ wh_tui.sh
 ```
 You can choose the template with CLI.
+
+![wh_tui](doc/wh_tui.png)
+
 
 * Print out template projects list  ;
 ./wh_tmpl.py list
