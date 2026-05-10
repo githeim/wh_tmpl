@@ -28,6 +28,6 @@ sudo apt-get install -y gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
 sudo apt-get install -y build-essential                             
 sudo apt-get install -y ninja-build                                 
 
-sudo apt-get install -y python3-urwid
-pip3 install --break-system-packages pyyaml                                             
+pip3 install --break-system-packages pyyaml
+pip3 install --break-system-packages textual
 sudo apt-get install -y libgtest-dev
