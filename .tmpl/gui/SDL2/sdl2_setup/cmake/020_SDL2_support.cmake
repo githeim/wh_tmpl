@@ -6,4 +6,5 @@ SET ( LIBRARY_LISTS ${LIBRARY_LISTS}
   ${SDL2_LIBRARIES}
   SDL2_ttf
   SDL2_image
+  SDL2_mixer
   )                                  
