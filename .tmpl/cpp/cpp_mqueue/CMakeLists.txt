@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED ( VERSION 3.5 )
+CMAKE_MINIMUM_REQUIRED ( VERSION 3.11 )
 PROJECT ( WW_ProjectName_WW )
 
 # Instruct CMake to run moc automatically when needed
