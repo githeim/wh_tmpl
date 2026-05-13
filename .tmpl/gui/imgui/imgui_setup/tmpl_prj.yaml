@@ -1,14 +1,14 @@
-ProjectName:  "imgui_ex"
-Description:  "imgui + SDL2 example code."
+ProjectName:  "imgui_setup"
+Description:  "imgui build setup, including fetching imgui source code"
 MajorVersion: "1"
 MinorVersion: "0"
 
-Reference_Prj: ['sdl2_setup','imgui_setup']
+Reference_Prj: ['cmake_template']
 
 MarkerList:
   WW_ProjectName_WW:
     Desc: "Write Your Project Name, this variable should not have space"
-    Replace: "imgui_ex"
+    Replace: "imgui_setup"
   WW_MajorVer_WW:
     Desc: "Major version"
     Replace: "121212"
