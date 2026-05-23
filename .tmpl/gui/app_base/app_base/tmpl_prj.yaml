@@ -1,0 +1,17 @@
+ProjectName:  "app_base"
+Description:  "SDL2, ImGui, EnTT 기반의 scene 전이 애플리케이션 프레임워크 베이스. 간단한 Application 또는 game을 작성하는데 기본으로 활용한다.다만 이 템플릿은 그 자체로 빌드되지 않는다.SceneMap.h가 없기 때문이다. 따라서 이 템플릿을 사용한 app_base_ex 템플릿으로 생성하면 빌드하고 실행해 볼 수 있다"
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['cmake_template', 'cpp_glog', 'sdl2_setup', 'imgui_setup', 'entt_setup', 'gui_common_resource']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "app_base"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "1"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "0"
