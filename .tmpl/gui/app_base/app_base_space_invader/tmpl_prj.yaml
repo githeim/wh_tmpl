@@ -1,0 +1,17 @@
+ProjectName:  "app_base_space_invader"
+Description:  "Space invader를 간략히 구현했다.SDL2, ImGui, EnTT 기반의 scene 전이 애플리케이션 프레임워크 베이스인 app_base를 사용한 템플릿."
+MajorVersion: "1"
+MinorVersion: "0"
+
+Reference_Prj: ['app_base']
+
+MarkerList:
+  WW_ProjectName_WW:
+    Desc: "Write Your Project Name, this variable should not have space"
+    Replace: "app_base_space_invader"
+  WW_MajorVer_WW:
+    Desc: "Major version"
+    Replace: "1"
+  WW_MinorVer_WW:
+    Desc: "Minor version"
+    Replace: "0"
