@@ -10,6 +10,7 @@
 #include "CBase.h"
 #include "Log_Util.h"
 #include "SDL2_Ctx.h"
+#include "ImGui_Ctx.h"
 #include "SceneDef.h"
 
 #include "scenes/SceneUtil.h"
@@ -48,7 +49,7 @@ public:
    */
   Impl()
       : m_pECS(std::make_shared<entt::registry>()) {
-    m_pECS->ctx().emplace<AppCtx>();
+    m_pECS->ctx().emplace<SDL2Ctx>();
     m_pECS->ctx().emplace<entt::dispatcher>();
     m_pECS->ctx().emplace<SceneRuntime>();
     m_pECS->ctx().emplace<GameState>();
@@ -81,15 +82,15 @@ public:
    * @return 성공 시 0, 실패 시 1
    */
   int PreLoop(entt::registry &ECS) {
-    auto &appCtx = ECS.ctx().get<AppCtx>();
-    if (Init_SDL_ctx(appCtx) != 0) {
+    auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
+    if (Init_SDL_ctx(sdlCtx) != 0) {
       LER("SDL context initialization failed");
       ECS.ctx().get<SceneRuntime>().shouldQuit = true;
       Base.Set_bLoopTrigger(false);
       return 1;
     }
 
-    if (!InitImGui(appCtx)) {
+    if (!InitImGui(sdlCtx)) {
       LER("ImGui initialization failed");
       ECS.ctx().get<SceneRuntime>().shouldQuit = true;
       Base.Set_bLoopTrigger(false);
@@ -108,12 +109,12 @@ public:
    * @return 종료 요청이 있으면 1, 계속 실행이면 0
    */
   int Loop(entt::registry &ECS) {
-    auto &appCtx = ECS.ctx().get<AppCtx>();
+    auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
     auto &runtime = ECS.ctx().get<SceneRuntime>();
 
     double actualDiff_SEC = 1.0/APP_LPS;
 
-    if (appCtx.pWindow == nullptr || appCtx.pRenderer == nullptr) {
+    if (sdlCtx.pWindow == nullptr || sdlCtx.pRenderer == nullptr) {
       runtime.shouldQuit = true;
       return 1;
     }
@@ -140,9 +141,9 @@ public:
    * @return 항상 0
    */
   int PostLoop(entt::registry &ECS) {
-    ShutdownImGui();
-    auto &appCtx = ECS.ctx().get<AppCtx>();
-    DeInit_SDL_ctx(appCtx);
+    CleanupImGui();
+    auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
+    Cleanup_SDL_ctx(sdlCtx);
     return 0;
   }
 
@@ -208,48 +209,6 @@ private:
    */
   void SetupSceneMap() {
     m_sceneMap = GetSceneMap();
-  }
-
-  /**
-   * @brief ImGui 컨텍스트와 SDL2/SDLRenderer 백엔드를 초기화한다.
-   *
-   * @param[in] appCtx SDL 윈도우/렌더러를 포함한 컨텍스트
-   * @return 성공 시 true, 실패 시 false
-   */
-  bool InitImGui(AppCtx &appCtx) {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-
-    ImGuiIO &io = ImGui::GetIO();
-    io.IniFilename = nullptr;
-    io.LogFilename = nullptr;
-
-    io.Fonts->AddFontFromFileTTF(
-        "resource/fonts/NanumGothicCoding-Regular.ttf",
-        18.0f,
-        nullptr,
-        io.Fonts->GetGlyphRangesKorean());
-
-    if (!ImGui_ImplSDL2_InitForSDLRenderer(appCtx.pWindow, appCtx.pRenderer)) {
-      return false;
-    }
-    if (!ImGui_ImplSDLRenderer_Init(appCtx.pRenderer)) {
-      ImGui_ImplSDL2_Shutdown();
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * @brief ImGui 백엔드와 컨텍스트를 안전하게 종료한다.
-   */
-  void ShutdownImGui() {
-    if (ImGui::GetCurrentContext() != nullptr) {
-      ImGui_ImplSDLRenderer_Shutdown();
-      ImGui_ImplSDL2_Shutdown();
-      ImGui::DestroyContext();
-    }
   }
 
   /**
@@ -437,7 +396,7 @@ private:
    * @param[in]     dbTimeDiff_SEC 실제 경과 시간(초)
    */
   void Render(entt::registry &ECS, double dbTimeDiff_SEC) {
-    auto &appCtx = ECS.ctx().get<AppCtx>();
+    auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
     auto &runtime = ECS.ctx().get<SceneRuntime>();
 
     ImGui_ImplSDLRenderer_NewFrame();
@@ -446,8 +405,8 @@ private:
 
     const ColorRgb bg = (runtime.phase == TransitionPhase::None) ? 
                                        kSceneBackground : kTransitionBackground;
-    SDL_SetRenderDrawColor(appCtx.pRenderer, bg.r, bg.g, bg.b, SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(appCtx.pRenderer);
+    SDL_SetRenderDrawColor(sdlCtx.pRenderer, bg.r, bg.g, bg.b, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(sdlCtx.pRenderer);
 
     if (runtime.phase == TransitionPhase::None) {
       RenderActiveScene(ECS, runtime,dbTimeDiff_SEC);
@@ -457,7 +416,7 @@ private:
 
     ImGui::Render();
     ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
-    SDL_RenderPresent(appCtx.pRenderer);
+    SDL_RenderPresent(sdlCtx.pRenderer);
   }
 
   /**

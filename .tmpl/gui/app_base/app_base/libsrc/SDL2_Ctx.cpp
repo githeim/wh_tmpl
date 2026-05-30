@@ -8,10 +8,10 @@ std::map<std::string, std::string> g_mapSoundPath {
 };
 }
 
-int Init_Joystick(AppCtx &Ctx);
-void DeInit_Joystick(AppCtx &Ctx);
-int Init_Sound(AppCtx &Ctx);
-void DeInit_Sound(AppCtx &Ctx);
+int Init_Joystick(SDL2Ctx &Ctx);
+void Cleanup_Joystick(SDL2Ctx &Ctx);
+int Init_Sound(SDL2Ctx &Ctx);
+void Cleanup_Sound(SDL2Ctx &Ctx);
 
 /**
  * @brief SDL2 컨텍스트를 초기화한다.
@@ -19,10 +19,10 @@ void DeInit_Sound(AppCtx &Ctx);
  * SDL2 비디오/조이스틱/오디오 서브시스템을 초기화하고,
  * 윈도우 및 렌더러를 생성한다. 조이스틱과 사운드도 함께 초기화한다.
  *
- * @param[out] Ctx 초기화할 AppCtx 구조체 참조
+ * @param[out] Ctx 초기화할 SDL2Ctx 구조체 참조
  * @return 성공 시 0, 실패 시 -1
  */
-int Init_SDL_ctx(AppCtx &Ctx) {
+int Init_SDL_ctx(SDL2Ctx &Ctx) {
   Ctx.pWindow = nullptr;
   Ctx.pRenderer = nullptr;
 
@@ -70,13 +70,13 @@ int Init_SDL_ctx(AppCtx &Ctx) {
  * 폰트, 사운드, 조이스틱, 렌더러, 윈도우를 순서대로 해제하고
  * SDL2 서브시스템을 종료한다.
  *
- * @param[in,out] Ctx 정리할 AppCtx 구조체 참조
+ * @param[in,out] Ctx 정리할 SDL2Ctx 구조체 참조
  * @return 항상 0 반환
  */
-int DeInit_SDL_ctx(AppCtx &Ctx) {
-  DeInit_Fonts(Ctx);
-  DeInit_Sound(Ctx);
-  DeInit_Joystick(Ctx);
+int Cleanup_SDL_ctx(SDL2Ctx &Ctx) {
+  Cleanup_Fonts(Ctx);
+  Cleanup_Sound(Ctx);
+  Cleanup_Joystick(Ctx);
   if (Ctx.pRenderer != nullptr) {
     SDL_RenderClear(Ctx.pRenderer);
     SDL_DestroyRenderer(Ctx.pRenderer);
@@ -99,11 +99,11 @@ int DeInit_SDL_ctx(AppCtx &Ctx) {
  * NanumGothicCoding-Regular.ttf 폰트를 지정한 크기로 로드하여
  * Ctx.pFontMain에 설정한다.
  *
- * @param[out] Ctx 폰트를 설정할 AppCtx 구조체 참조
+ * @param[out] Ctx 폰트를 설정할 SDL2Ctx 구조체 참조
  * @param[in]  iFontSize 로드할 폰트 크기 (기본값: DEFAULT_FONT_SIZE)
  * @return 성공 시 0, 실패 시 -1
  */
-int Init_Fonts(AppCtx &Ctx, int iFontSize) {
+int Init_Fonts(SDL2Ctx &Ctx, int iFontSize) {
   if( TTF_Init() == -1 ) {
     LWY("SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError());
     return -1;
@@ -125,10 +125,10 @@ int Init_Fonts(AppCtx &Ctx, int iFontSize) {
  * Ctx.pFontMain이 유효한 경우 폰트를 닫고 nullptr로 초기화한다.
  * 이후 TTF_Quit()을 호출하여 SDL_ttf 서브시스템을 종료한다.
  *
- * @param[in,out] Ctx 폰트를 해제할 AppCtx 구조체 참조
+ * @param[in,out] Ctx 폰트를 해제할 SDL2Ctx 구조체 참조
  * @return 항상 0 반환
  */
-int DeInit_Fonts(AppCtx &Ctx) {
+int Cleanup_Fonts(SDL2Ctx &Ctx) {
   if (Ctx.pFontMain != nullptr) {
     TTF_CloseFont(Ctx.pFontMain);
     Ctx.pFontMain = nullptr;
@@ -173,10 +173,10 @@ int DrawText(SDL_Texture* &pTxtTexture, TTF_Font* &pFont,
  * 연결된 조이스틱의 수를 확인하고, 각 조이스틱을 열어
  * Ctx.mapJoystick에 저장한다. 조이스틱이 없어도 오류를 반환하지 않는다.
  *
- * @param[out] Ctx 조이스틱을 등록할 AppCtx 구조체 참조
+ * @param[out] Ctx 조이스틱을 등록할 SDL2Ctx 구조체 참조
  * @return 항상 0 반환
  */
-int Init_Joystick(AppCtx &Ctx) {
+int Init_Joystick(SDL2Ctx &Ctx) {
   LIY("Init Joystick");
   int iNumJoysticks = SDL_NumJoysticks();
 
@@ -210,9 +210,9 @@ int Init_Joystick(AppCtx &Ctx) {
  * Ctx.mapJoystick에 저장된 모든 조이스틱 핸들을 닫고,
  * 맵을 비운다.
  *
- * @param[in,out] Ctx 조이스틱을 해제할 AppCtx 구조체 참조
+ * @param[in,out] Ctx 조이스틱을 해제할 SDL2Ctx 구조체 참조
  */
-void DeInit_Joystick(AppCtx &Ctx) {
+void Cleanup_Joystick(SDL2Ctx &Ctx) {
   for (auto &Item : Ctx.mapJoystick) {
     SDL_Joystick* &pJoystick = Item.second;
     if (pJoystick != nullptr) {
@@ -221,7 +221,7 @@ void DeInit_Joystick(AppCtx &Ctx) {
     }
   }
   Ctx.mapJoystick.clear();
-  LIY("DeInit Joystick Done");
+  LIY("Cleanup Joystick Done");
 }
 
 /**
@@ -230,10 +230,10 @@ void DeInit_Joystick(AppCtx &Ctx) {
  * 44100Hz, 스테레오 설정으로 오디오 장치를 열고,
  * g_mapSoundPath에 정의된 WAV 파일들을 로드하여 Ctx.mapSound에 저장한다.
  *
- * @param[out] Ctx 사운드를 로드할 AppCtx 구조체 참조
+ * @param[out] Ctx 사운드를 로드할 SDL2Ctx 구조체 참조
  * @return 성공 시 0, 오디오 장치 오픈 실패 시 -1
  */
-int Init_Sound(AppCtx &Ctx) {
+int Init_Sound(SDL2Ctx &Ctx) {
   LIY("Init Sound");
   if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
   {
@@ -261,20 +261,20 @@ int Init_Sound(AppCtx &Ctx) {
  * Ctx.mapSound에 저장된 모든 Mix_Chunk를 해제하고 맵을 비운다.
  * 이후 Mix_CloseAudio()를 호출하여 오디오 장치를 닫는다.
  *
- * @param[in,out] Ctx 사운드를 해제할 AppCtx 구조체 참조
+ * @param[in,out] Ctx 사운드를 해제할 SDL2Ctx 구조체 참조
  */
-void DeInit_Sound(AppCtx &Ctx) {
+void Cleanup_Sound(SDL2Ctx &Ctx) {
   for (auto &item : Ctx.mapSound) {
     Mix_Chunk *&pSound = item.second;
     if (pSound) {
       Mix_FreeChunk(pSound);
       pSound = nullptr;
-      LIY("DeInit sound [" << item.first << "]");
+      LIY("Cleanup sound [" << item.first << "]");
     }
   }
   Ctx.mapSound.clear();
   Mix_CloseAudio();
-  LIY("DeInit Sound Done");
+  LIY("Cleanup Sound Done");
 }
 
 /**
@@ -283,10 +283,10 @@ void DeInit_Sound(AppCtx &Ctx) {
  * 게임 루프에서 주기적으로 호출되어 조이스틱 입력을 처리할 목적으로
  * 선언된 함수이나, 현재는 빈 구현체다.
  *
- * @param[in] Ctx       AppCtx 구조체 참조 (현재 미사용)
+ * @param[in] Ctx       SDL2Ctx 구조체 참조 (현재 미사용)
  * @param[in] dbTimeDiff 이전 프레임과의 경과 시간(초) (현재 미사용)
  */
-void Check_Joystick(AppCtx &Ctx, double dbTimeDiff) {
+void Check_Joystick(SDL2Ctx &Ctx, double dbTimeDiff) {
   (void)Ctx;
   (void)dbTimeDiff;
 }
@@ -294,10 +294,10 @@ void Check_Joystick(AppCtx &Ctx, double dbTimeDiff) {
 /**
  * @brief 사운드 재생 여부를 설정한다.
  *
- * @param[out] Ctx    AppCtx 구조체 참조
+ * @param[out] Ctx    SDL2Ctx 구조체 참조
  * @param[in]  bOnOff true이면 사운드 활성화, false이면 비활성화
  */
-void Set_Sound(AppCtx &Ctx, bool bOnOff) {
+void Set_Sound(SDL2Ctx &Ctx, bool bOnOff) {
   Ctx.bSoundOnOff = bOnOff;
 }
 
@@ -308,10 +308,10 @@ void Set_Sound(AppCtx &Ctx, bool bOnOff) {
  * strSound에 해당하는 사운드가 Ctx.mapSound에 존재할 경우 재생한다.
  * 빈 채널(-1)을 사용하여 첫 번째 사용 가능한 채널에서 1회 재생한다.
  *
- * @param[in] Ctx      AppCtx 구조체 참조
+ * @param[in] Ctx      SDL2Ctx 구조체 참조
  * @param[in] strSound 재생할 사운드 이름 (mapSound의 키)
  */
-void Play_Sound(AppCtx &Ctx, const std::string &strSound) {
+void Play_Sound(SDL2Ctx &Ctx, const std::string &strSound) {
   if (Ctx.bSoundOnOff && Ctx.mapSound.find(strSound) != Ctx.mapSound.end()) {
     Mix_PlayChannel(-1, Ctx.mapSound[strSound], 0);
   }
