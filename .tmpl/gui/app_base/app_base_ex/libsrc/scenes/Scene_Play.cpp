@@ -348,19 +348,19 @@ void InputSystem(entt::registry &ECS, float dt) {
  */
 void RenderTriangleSystem(entt::registry &ECS, float dt) {
   (void)dt;
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
   int winW = 0, winH = 0;
-  SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
+  SDL_GetWindowSize(sdlCtx.pWindow, &winW, &winH);
   const int gameY = winH / 3;
   const int gameH = winH - gameY;
 
   auto view = ECS.view<Transform, TriangleShape, Color>();
   for (auto [e, tf, ts, col] : view.each()) {
-    SDL_SetRenderDrawColor(appCtx.pRenderer, col.r, col.g, col.b, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(sdlCtx.pRenderer, col.r, col.g, col.b, SDL_ALPHA_OPAQUE);
     int cx = static_cast<int>(tf.x * winW);
     int cy = gameY + static_cast<int>(tf.y * gameH);
     int r  = static_cast<int>(ts.r);
-    DrawFilledTriangle(appCtx.pRenderer,
+    DrawFilledTriangle(sdlCtx.pRenderer,
                        cx + static_cast<int>(r * std::sin(tf.angle)),
                        cy - static_cast<int>(r * std::cos(tf.angle)),
                        cx + static_cast<int>(r * std::sin(tf.angle + 2.094f)),
@@ -378,16 +378,16 @@ void RenderTriangleSystem(entt::registry &ECS, float dt) {
  */
 void RenderCircleSystem(entt::registry &ECS, float dt) {
   (void)dt;
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
   int winW = 0, winH = 0;
-  SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
+  SDL_GetWindowSize(sdlCtx.pWindow, &winW, &winH);
   const int gameY = winH / 3;
   const int gameH = winH - gameY;
 
   auto view = ECS.view<Transform, CircleShape, Color>();
   for (auto [e, tf, cs, col] : view.each()) {
-    SDL_SetRenderDrawColor(appCtx.pRenderer, col.r, col.g, col.b, SDL_ALPHA_OPAQUE);
-    DrawFilledCircle(appCtx.pRenderer,
+    SDL_SetRenderDrawColor(sdlCtx.pRenderer, col.r, col.g, col.b, SDL_ALPHA_OPAQUE);
+    DrawFilledCircle(sdlCtx.pRenderer,
                      static_cast<int>(tf.x * winW),
                      gameY + static_cast<int>(tf.y * gameH),
                      static_cast<int>(cs.r));
@@ -410,15 +410,15 @@ void RenderCircleSystem(entt::registry &ECS, float dt) {
  */
 void RenderRectSystem(entt::registry &ECS, float dt) {
   (void)dt;
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
   int winW = 0, winH = 0;
-  SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
+  SDL_GetWindowSize(sdlCtx.pWindow, &winW, &winH);
   const int gameY = winH / 3;
   const int gameH = winH - gameY;
 
   auto view = ECS.view<Transform, RectShape, Color>();
   for (auto [e, tf, rs, col] : view.each()) {
-    SDL_SetRenderDrawColor(appCtx.pRenderer, col.r, col.g, col.b, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(sdlCtx.pRenderer, col.r, col.g, col.b, SDL_ALPHA_OPAQUE);
 
     int cx = static_cast<int>(tf.x * winW);
     int cy = gameY + static_cast<int>(tf.y * gameH);
@@ -437,9 +437,9 @@ void RenderRectSystem(entt::registry &ECS, float dt) {
     int x3 = rotX(-h, h), y3 = rotY(-h, h);
 
     // 삼각형 1: v0-v1-v2
-    DrawFilledTriangle(appCtx.pRenderer, x0,y0, x1,y1, x2,y2);
+    DrawFilledTriangle(sdlCtx.pRenderer, x0,y0, x1,y1, x2,y2);
     // 삼각형 2: v0-v2-v3
-    DrawFilledTriangle(appCtx.pRenderer, x0,y0, x2,y2, x3,y3);
+    DrawFilledTriangle(sdlCtx.pRenderer, x0,y0, x2,y2, x3,y3);
   }
 }
 
@@ -454,12 +454,12 @@ void RenderRectSystem(entt::registry &ECS, float dt) {
  */
 void HudSystem(entt::registry &ECS, float dt) {
   (void)dt;
-  auto &appCtx        = ECS.ctx().get<AppCtx>();
+  auto &sdlCtx        = ECS.ctx().get<SDL2Ctx>();
   const auto &runtime = ECS.ctx().get<SceneRuntime>();
   const auto &gGs     = ECS.ctx().get<GameState>();
 
   int winW = 0, winH = 0;
-  SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
+  SDL_GetWindowSize(sdlCtx.pWindow, &winW, &winH);
   const int hudH = winH / 3;
 
   ImGuiViewport *viewport = ImGui::GetMainViewport();
@@ -568,7 +568,7 @@ void OnEnter(entt::registry &ECS, float dt) {
   SDL_Delay(500);
 
   int winW = 0, winH = 0;
-  SDL_GetWindowSize(ECS.ctx().get<AppCtx>().pWindow, &winW, &winH);
+  SDL_GetWindowSize(ECS.ctx().get<SDL2Ctx>().pWindow, &winW, &winH);
   const float triR = (float)(winH / 3) / 4.0f;
 
   // 삼각형 entity
@@ -690,16 +690,16 @@ void OnUpdate(entt::registry &ECS, float dt) {
  * @param[in] dt  프레임 경과 시간 (초, OnEnter/OnExit 는 0.0f)
  */
 void OnRender(entt::registry &ECS, float dt) {
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &sdlCtx = ECS.ctx().get<SDL2Ctx>();
 
   // 게임 영역 배경
   int winW = 0, winH = 0;
-  SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
+  SDL_GetWindowSize(sdlCtx.pWindow, &winW, &winH);
   const int gameY = winH / 3;
   const int gameH = winH - gameY;
-  SDL_SetRenderDrawColor(appCtx.pRenderer, 40, 40, 40, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(sdlCtx.pRenderer, 40, 40, 40, SDL_ALPHA_OPAQUE);
   SDL_Rect gameArea{0, gameY, winW, gameH};
-  SDL_RenderFillRect(appCtx.pRenderer, &gameArea);
+  SDL_RenderFillRect(sdlCtx.pRenderer, &gameArea);
 
   RenderTriangleSystem(ECS, dt);
   RenderCircleSystem(ECS, dt);
