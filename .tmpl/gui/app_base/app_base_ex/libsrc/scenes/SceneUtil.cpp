@@ -75,7 +75,7 @@ void RenderSceneChrome(entt::registry &ECS, SceneId scene,
  * @brief 공통 씬 진입 처리를 수행한다. (worker thread 에서 호출됨)
  *
  * SceneRuntime 을 건드리지 않는다. enterCounts/lifecycleNote 갱신은
- * App.cpp main thread 가 join 후에 수행한다.
+ * CApp.cpp main thread 가 join 후에 수행한다.
  *
  * @param[in,out] ECS   ECS 레지스트리
  * @param[in]     scene 진입한 씬
@@ -91,7 +91,7 @@ void OnGenericSceneEnter(entt::registry &ECS, SceneId scene, float dt) {
  * @brief 공통 씬 이탈 처리를 수행한다. (worker thread 에서 호출됨)
  *
  * SceneRuntime 을 건드리지 않는다. exitCounts/lifecycleNote 갱신은
- * App.cpp main thread 가 join 후에 수행한다.
+ * CApp.cpp main thread 가 join 후에 수행한다.
  *
  * @param[in,out] ECS   ECS 레지스트리
  * @param[in]     scene 이탈한 씬

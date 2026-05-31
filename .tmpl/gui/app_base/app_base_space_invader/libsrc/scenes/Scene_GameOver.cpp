@@ -20,7 +20,7 @@ void OnExit(entt::registry &ECS, float dt) {
 
 void OnRender(entt::registry &ECS, float dt) {
   (void)dt;
-  auto &appCtx     = ECS.ctx().get<AppCtx>();
+  auto &appCtx     = ECS.ctx().get<SDL2Ctx>();
   auto &dispatcher = ECS.ctx().get<entt::dispatcher>();
   const auto &input = ECS.ctx().get<InputState>();
   const auto &gs    = ECS.ctx().get<GameState>();

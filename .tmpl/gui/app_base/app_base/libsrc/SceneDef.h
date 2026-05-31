@@ -61,14 +61,14 @@ struct AppQuitRequest {
 };
 
 /**
- * @brief 씬 전이 중 로딩/정리 진행도를 씬과 App.cpp 간에 공유하는 컨텍스트이다.
+ * @brief 씬 전이 중 로딩/정리 진행도를 씬과 CApp.cpp 간에 공유하는 컨텍스트이다.
  *
  * worker thread(OnEnter/OnExit)가 쓰고, main thread(렌더링)가 읽는다.
  * fProgress, szStatus 는 atomic 으로 thread-safe 하게 공유한다.
  *
  * szPhase/szCurrentScene/szTargetScene 은 main thread 전용 스냅샷이다.
  * 메인 스레드가 전이 시작 시점에 한 번 세팅하고 만다는 의미에서의 스냅샷
- * 전이 시작 시 App.cpp 가 설정하고 RenderTransitionScreen 이 읽는다.
+ * 전이 시작 시 CApp.cpp 가 설정하고 RenderTransitionScreen 이 읽는다.
  *
  * 사용 예:
  *   auto &lc = ECS.ctx().get<SceneLoadingContext>();
@@ -106,7 +106,7 @@ struct SceneRuntime {
   std::string lifecycleNote = "Application booted"; ///< 라이프사이클 디버그용 메모
   std::map<SceneId, int> enterCounts;             ///< 각 씬별 진입(Enter) 횟수
   std::map<SceneId, int> exitCounts;              ///< 각 씬별 이탈(Exit) 횟수
-  std::thread workerThread;                       ///< OnEnter/OnExit worker thread (App.cpp 전용)
+  std::thread workerThread;                       ///< OnEnter/OnExit worker thread (CApp.cpp 전용)
 };
 
 /**
@@ -131,7 +131,7 @@ struct GameState {
 /**
  * @brief 매 프레임 갱신되는 입력 장치 상태이다.
  *
- * App.cpp 의 ProcessSdlEvents() 에서 SDL 이벤트 큐를 소진한 후 최신 상태로 유지한다.
+ * CApp.cpp 의 ProcessSdlEvents() 에서 SDL 이벤트 큐를 소진한 후 최신 상태로 유지한다.
  * 씬의 OnUpdate() 에서 ECS.ctx().get<InputState>() 로 읽기 전용 접근한다.
  *
  * 동시 입력 감지 예시:

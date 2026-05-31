@@ -6,7 +6,7 @@
 #include <string>
 #include <utility>
 
-#include "App.h"
+#include "CApp.h"
 #include "CBase.h"
 #include "Log_Util.h"
 #include "SDL2_Ctx.h"
@@ -42,7 +42,7 @@ constexpr ColorRgb kTransitionBackground{60, 60, 60};
 }  // namespace
 
 
-class App::Impl {
+class CApp::Impl {
 public:
   /**
    * @brief ECS 컨텍스트, 디스패처, 씬 정의를 초기화하고 이벤트를 연결한다.
@@ -60,8 +60,8 @@ public:
     SetupProcedureMap();
 
     auto &dispatcher = m_pECS->ctx().get<entt::dispatcher>();
-    dispatcher.sink<SceneTransitionRequest>().connect<&App::Impl::OnSceneTransitionRequest>(*this);
-    dispatcher.sink<AppQuitRequest>().connect<&App::Impl::OnAppQuitRequest>(*this);
+    dispatcher.sink<SceneTransitionRequest>().connect<&CApp::Impl::OnSceneTransitionRequest>(*this);
+    dispatcher.sink<AppQuitRequest>().connect<&CApp::Impl::OnAppQuitRequest>(*this);
   }
 
   /**
@@ -70,8 +70,8 @@ public:
   ~Impl() {
     if (m_pECS != nullptr && m_pECS->ctx().contains<entt::dispatcher>()) {
       auto &dispatcher = m_pECS->ctx().get<entt::dispatcher>();
-      dispatcher.sink<SceneTransitionRequest>().disconnect<&App::Impl::OnSceneTransitionRequest>(*this);
-      dispatcher.sink<AppQuitRequest>().disconnect<&App::Impl::OnAppQuitRequest>(*this);
+      dispatcher.sink<SceneTransitionRequest>().disconnect<&CApp::Impl::OnSceneTransitionRequest>(*this);
+      dispatcher.sink<AppQuitRequest>().disconnect<&CApp::Impl::OnAppQuitRequest>(*this);
     }
   }
 
@@ -568,26 +568,26 @@ private:
     }
   }
 
-};  // class App::Impl
+};  // class CApp::Impl
 
 /**
  * @brief 내부 구현 객체를 생성한다.
  */
-App::App()
+CApp::CApp()
     : m_pImpl(std::make_unique<Impl>()) {
 }
 
 /**
- * @brief App 구현 객체를 기본 소멸 규칙으로 정리한다.
+ * @brief CApp 구현 객체를 기본 소멸 규칙으로 정리한다.
  */
-App::~App() = default;
+CApp::~CApp() = default;
 
 /**
  * @brief FPS 제어기를 초기화하고 메인 루프를 시작한다.
  *
  * @return 시작 결과 코드
  */
-int App::Start() {
+int CApp::Start() {
   Init_FPS_Ctrl();
   return m_pImpl->Base.Start(*m_pImpl->m_pECS, m_pImpl->ProcMap());
 }
@@ -597,7 +597,7 @@ int App::Start() {
  *
  * @return 중지 결과 코드
  */
-int App::Stop() {
+int CApp::Stop() {
   return m_pImpl->Base.Stop();
 }
 
@@ -606,6 +606,6 @@ int App::Stop() {
  *
  * @return 대기 결과 코드
  */
-int App::Wait() {
+int CApp::Wait() {
   return m_pImpl->Wait();
 }

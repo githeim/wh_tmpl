@@ -183,7 +183,7 @@ static void PlayerInputSystem(entt::registry &ECS, float dt) {
   const auto &input = ECS.ctx().get<InputState>();
   auto &cmb         = ECS.ctx().get<GameCmdBuffer>();
   auto &dispatcher  = ECS.ctx().get<entt::dispatcher>();
-  auto &appCtx      = ECS.ctx().get<AppCtx>();
+  auto &appCtx      = ECS.ctx().get<SDL2Ctx>();
   auto &ls          = ECS.ctx().get<GameLocalState>();
 
   int winW = 0, winH = 0;
@@ -223,7 +223,7 @@ static void PlayerInputSystem(entt::registry &ECS, float dt) {
 /// 모든 velocity entity 위치 갱신, 화면 밖 총알 제거
 static void MoveSystem(entt::registry &ECS, float dt) {
   auto &cmb    = ECS.ctx().get<GameCmdBuffer>();
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &appCtx = ECS.ctx().get<SDL2Ctx>();
 
   int winW = 0, winH = 0;
   SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
@@ -251,7 +251,7 @@ static void MoveSystem(entt::registry &ECS, float dt) {
 static void EnemyMoveSystem(entt::registry &ECS, float dt) {
   auto &ls     = ECS.ctx().get<GameLocalState>();
   auto &cmb    = ECS.ctx().get<GameCmdBuffer>();
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &appCtx = ECS.ctx().get<SDL2Ctx>();
 
   int winW = 0, winH = 0;
   SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
@@ -312,7 +312,7 @@ static void EnemyShootSystem(entt::registry &ECS, float dt) {
 /// 총알 충돌 처리
 static void CollisionSystem(entt::registry &ECS, float) {
   auto &cmb      = ECS.ctx().get<GameCmdBuffer>();
-  auto &appCtx   = ECS.ctx().get<AppCtx>();
+  auto &appCtx   = ECS.ctx().get<SDL2Ctx>();
 
   int winW = 0, winH = 0;
   SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
@@ -402,7 +402,7 @@ static void GameOverCheckSystem(entt::registry &ECS, float) {
 // =============================================================================
 
 static void RenderGame(entt::registry &ECS, float) {
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &appCtx = ECS.ctx().get<SDL2Ctx>();
   auto  r      = appCtx.pRenderer;
   auto &gs     = ECS.ctx().get<GameState>();
 
@@ -462,7 +462,7 @@ void OnEnter(entt::registry &ECS, float dt) {
   ECS.ctx().emplace<GameCmdBuffer>();
   ECS.ctx().emplace<GameLocalState>();
 
-  auto &appCtx = ECS.ctx().get<AppCtx>();
+  auto &appCtx = ECS.ctx().get<SDL2Ctx>();
   int winW = 0, winH = 0;
   SDL_GetWindowSize(appCtx.pWindow, &winW, &winH);
 
