@@ -1,6 +1,7 @@
 #include "Scene_Title.h"
 #include "SceneUtil.h"
 #include "SceneDef.h"
+#include "AppState.h"
 #include "SDL2_Ctx.h"
 #include "imgui.h"
 
@@ -102,6 +103,9 @@ static void DrawPlayerShip(SDL_Renderer *r, int cx, int cy, int size) {
 
 void OnEnter(entt::registry &ECS, float dt) {
   (void)dt;
+  if (!ECS.ctx().contains<GameState>()) {
+    ECS.ctx().emplace<GameState>();
+  }
   OnGenericSceneEnter(ECS, SceneId::Title);
 }
 

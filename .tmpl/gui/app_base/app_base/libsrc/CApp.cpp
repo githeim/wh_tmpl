@@ -52,7 +52,6 @@ public:
     m_pECS->ctx().emplace<SDL2Ctx>();
     m_pECS->ctx().emplace<entt::dispatcher>();
     m_pECS->ctx().emplace<SceneRuntime>();
-    m_pECS->ctx().emplace<GameState>();
     m_pECS->ctx().emplace<SceneLoadingContext>();
     m_pECS->ctx().emplace<InputState>();  // 매 프레임 갱신되는 입력 장치 상태
 

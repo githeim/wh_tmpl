@@ -1,6 +1,7 @@
 #include "Scene_GameOver.h"
 #include "SceneUtil.h"
 #include "SceneDef.h"
+#include "AppState.h"
 #include "SDL2_Ctx.h"
 #include "imgui.h"
 
