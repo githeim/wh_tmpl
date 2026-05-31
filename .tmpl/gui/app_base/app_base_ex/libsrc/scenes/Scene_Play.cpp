@@ -447,7 +447,7 @@ void RenderRectSystem(entt::registry &ECS, float dt) {
 /**
  * @brief ScoreCounter 컴포넌트와 GameState ctx 를 읽어 ImGui HUD 를 그린다.
  *
- * 상단 1/3 영역에 반투명 오버레이로 렌더링한다.
+ * 상단 1/2 영역에 반투명 오버레이로 렌더링한다.
  * Game Over 버튼 클릭 시 SceneTransitionRequest 를 enqueue 한다.
  *
  * @param ECS 레지스트리 (읽기 전용, dispatcher enqueue 제외)
@@ -461,7 +461,7 @@ void HudSystem(entt::registry &ECS, float dt) {
 
   int winW = 0, winH = 0;
   SDL_GetWindowSize(sdlCtx.pWindow, &winW, &winH);
-  const int hudH = winH / 3;
+  const int hudH = winH / 2;
 
   ImGuiViewport *viewport = ImGui::GetMainViewport();
   ImGui::SetNextWindowPos(viewport->Pos);

@@ -1,6 +1,7 @@
 #include "Scene_Title.h"
 #include "SceneUtil.h"
 #include "SceneDef.h"
+#include "AppState.h"
 #include "imgui.h"
 
 namespace Scene::Title {
@@ -16,6 +17,9 @@ namespace Scene::Title {
  */
 void OnEnter(entt::registry &ECS, float dt) {
   (void)dt;
+  if (!ECS.ctx().contains<GameState>()) {
+    ECS.ctx().emplace<GameState>();
+  }
   OnGenericSceneEnter(ECS, SceneId::Title);
 }
 
