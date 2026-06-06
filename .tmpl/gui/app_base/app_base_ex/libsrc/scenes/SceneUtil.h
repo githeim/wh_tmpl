@@ -18,12 +18,14 @@ void EndFullscreenUi();
 /**
  * @brief 각 씬 공통 헤더와 라이프사이클 정보를 렌더링한다.
  *
+ * BeginFullscreenUi() 호출 이후에 이 함수를 호출해야 한다.
+ *
  * @param[in] ECS      ECS 레지스트리
  * @param[in] scene    현재 씬
  * @param[in] heading  씬 제목
  * @param[in] subtitle 씬 설명 문구
  */
-void RenderSceneChrome(entt::registry &ECS, SceneId scene,
+void RenderSceneCommonHeader(entt::registry &ECS, SceneId scene,
                        const char *heading, const char *subtitle, float dt = 0.0f);
 
 /**

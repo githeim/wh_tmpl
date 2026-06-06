@@ -44,7 +44,8 @@ void OnExit(entt::registry &ECS, float dt) {
  */
 void OnRender(entt::registry &ECS, float dt) {
   (void)dt;
-  RenderSceneChrome(ECS, SceneId::Title, "Title",
+  BeginFullscreenUi("Title");
+  RenderSceneCommonHeader(ECS, SceneId::Title, "Title",
                    "앱 최초 부팅 시에는 별도 Preparing 없이 Title 씬으로 즉시 진입한다.");
 
   auto &dispatcher = ECS.ctx().get<entt::dispatcher>();

@@ -38,7 +38,8 @@ void OnExit(entt::registry &ECS, float dt) {
  */
 void OnRender(entt::registry &ECS, float dt) {
   (void)dt;
-  RenderSceneChrome(ECS, SceneId::MainMenu, "Main Menu",
+  BeginFullscreenUi("Main Menu");
+  RenderSceneCommonHeader(ECS, SceneId::MainMenu, "Main Menu",
                    "간단한 버튼 UI와 종료 popup 예제를 제공한다.");
 
   auto &dispatcher = ECS.ctx().get<entt::dispatcher>();

@@ -36,7 +36,8 @@ void OnExit(entt::registry &ECS, float dt) {
  * @param[in] dt  프레임 경과 시간 (초, OnEnter/OnExit 는 0.0f)
  */
 void OnRender(entt::registry &ECS, float dt) {
-  RenderSceneChrome(ECS, SceneId::End, "End",
+  BeginFullscreenUi("End");
+  RenderSceneCommonHeader(ECS, SceneId::End, "End",
                    "종료 화면 예제로 Main Menu 복귀 경로를 제공한다.");
 
   auto &dispatcher = ECS.ctx().get<entt::dispatcher>();

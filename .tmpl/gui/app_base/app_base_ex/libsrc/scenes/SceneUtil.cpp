@@ -41,21 +41,20 @@ void EndFullscreenUi() {
 /**
  * @brief 씬 공통 헤더(제목/설명/라이프사이클 정보)를 렌더링한다.
  *
- * BeginFullscreenUi() 를 호출하고 heading 을 대형 폰트로 표시한 뒤,
- * subtitle 과 씬별 OnEnter/OnExit 호출 횟수를 출력한다.
- * 이 함수는 ImGui 창을 열기만 하며 닫지 않는다 — 호출자가
- * 추가 위젯을 그린 뒤 EndFullscreenUi() 를 호출해야 한다.
+ * BeginFullscreenUi() 호출 이후에 이 함수를 호출해야 한다.
+ * heading 을 대형 폰트로 표시한 뒤 subtitle 과 씬별
+ * OnEnter/OnExit 호출 횟수를 출력한다.
+ * 호출자가 추가 위젯을 그린 뒤 EndFullscreenUi() 를 호출해야 한다.
  *
  * @param[in,out] ECS      ECS 레지스트리
  * @param[in]     scene    현재 씬 (카운터 조회에 사용)
  * @param[in]     heading  창 상단에 표시할 씬 제목 문자열
  * @param[in]     subtitle 씬 설명 문자열
  */
-void RenderSceneChrome(entt::registry &ECS, SceneId scene,
+void RenderSceneCommonHeader(entt::registry &ECS, SceneId scene,
                        const char *heading, const char *subtitle, float dt) {
   (void)dt;
   const auto &runtime = ECS.ctx().get<SceneRuntime>();
-  BeginFullscreenUi(heading);
   ImGui::SetWindowFontScale(2.0f);
   ImGui::TextUnformatted(heading);
   ImGui::SetWindowFontScale(1.0f);

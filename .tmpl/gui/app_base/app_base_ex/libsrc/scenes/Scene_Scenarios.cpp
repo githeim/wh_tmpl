@@ -39,7 +39,8 @@ void OnExit(entt::registry &ECS, float dt) {
  */
 void OnRender(entt::registry &ECS, float dt) {
   (void)dt;
-  RenderSceneChrome(ECS, SceneId::Scenarios, "Scenarios",
+  BeginFullscreenUi("Scenarios");
+  RenderSceneCommonHeader(ECS, SceneId::Scenarios, "Scenarios",
                    "Scenario 1~4 선택값은 ctx에 기록하고 Play 씬에서 텍스트로 보여준다.");
 
   auto &dispatcher = ECS.ctx().get<entt::dispatcher>();

@@ -36,7 +36,8 @@ void OnExit(entt::registry &ECS, float dt) {
  * @param[in] dt  프레임 경과 시간 (초, OnEnter/OnExit 는 0.0f)
  */
 void OnRender(entt::registry &ECS, float dt) {
-  RenderSceneChrome(ECS, SceneId::Option, "Option",
+  BeginFullscreenUi("Option");
+  RenderSceneCommonHeader(ECS, SceneId::Option, "Option",
                    "실제 옵션 항목 대신 scene 전이 구조 예제에 집중한다.");
 
   auto &dispatcher = ECS.ctx().get<entt::dispatcher>();
