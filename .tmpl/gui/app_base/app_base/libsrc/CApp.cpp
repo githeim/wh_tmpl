@@ -54,6 +54,8 @@ public:
     m_pECS->ctx().emplace<SceneRuntime>();
     m_pECS->ctx().emplace<SceneLoadingContext>();
     m_pECS->ctx().emplace<InputState>();  // 매 프레임 갱신되는 입력 장치 상태
+    m_pECS->ctx().emplace<WidgetRegistry_T>();  // 위젯 좌표 레지스트리 (테스트용)
+    m_pECS->ctx().emplace<ExtEvt_T>();          // 외부 이벤트 주입 버퍼 (테스트용)
 
     SetupSceneMap();
     SetupProcedureMap();
@@ -227,6 +229,15 @@ private:
     (void)dbTimeDiff_SEC;
     auto &dispatcher = ECS.ctx().get<entt::dispatcher>();
     auto &input      = ECS.ctx().get<InputState>();
+
+    // 외부 주입 이벤트: 테스트에서 ExtEvt_T.vecEvents 에 넣은 SDL_Event 를 1개씩 소진
+    if (ECS.ctx().contains<ExtEvt_T>()) {
+      auto &extEvt = ECS.ctx().get<ExtEvt_T>();
+      if (!extEvt.vecEvents.empty()) {
+        SDL_PushEvent(&extEvt.vecEvents.front());
+        extEvt.vecEvents.erase(extEvt.vecEvents.begin());
+      }
+    }
 
     // 1회성 값 매 프레임 초기화
     input.mouseButtonsPressed.clear();
@@ -607,4 +618,13 @@ int CApp::Stop() {
  */
 int CApp::Wait() {
   return m_pImpl->Wait();
+}
+
+/**
+ * @brief 내부 ECS 레지스트리를 반환한다.
+ *
+ * @return ECS 레지스트리 shared_ptr
+ */
+std::shared_ptr<entt::registry> CApp::GetECS() {
+  return m_pImpl->m_pECS;
 }

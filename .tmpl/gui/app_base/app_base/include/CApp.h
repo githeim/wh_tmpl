@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <entt/entt.hpp>
 
 /**
  * @brief SDL 기반 앱 프레임워크의 최상위 제어 클래스.
@@ -36,6 +37,16 @@ public:
    * @return 중지 처리 결과 코드
    */
   int Stop();
+
+  /**
+   * @brief 내부 ECS 레지스트리를 반환한다.
+   *
+   * 테스트에서 ctx 접근 (WidgetRegistry_T, ExtEvt_T) 에 사용한다.
+   * 프로덕션 코드에서는 사용하지 않는다.
+   *
+   * @return ECS 레지스트리 shared_ptr
+   */
+  std::shared_ptr<entt::registry> GetECS();
 
 private:
   class Impl;

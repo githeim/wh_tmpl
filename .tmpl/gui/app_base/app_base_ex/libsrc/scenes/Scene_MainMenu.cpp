@@ -28,29 +28,37 @@ void OnExit(entt::registry &ECS, float dt) {
 }
 
 /**
- * @brief 매 프레임 Main Menu 씬 UI를 렌더링한다.
+ * @brief Main Menu 씬 위젯을 렌더링한다.
  *
- * "Start Scenario" → Scenarios 씬, "Option" → Option 씬으로 전이하며,
- * "Quit" 클릭 시 확인 팝업을 열고 "Yes" 선택 시 AppQuitRequest 를 enqueue 한다.
+ * BeginFullscreenUi() ~ EndFullscreenUi() 사이에서 호출해야 한다.
  *
  * @param[in,out] ECS ECS 레지스트리
- * @param[in] dt  프레임 경과 시간 (초, OnEnter/OnExit 는 0.0f)
  */
-void OnRender(entt::registry &ECS, float dt) {
-  (void)dt;
-  BeginFullscreenUi("Main Menu");
+static void UI_MainMenu(entt::registry &ECS) {
   RenderSceneCommonHeader(ECS, SceneId::MainMenu, "Main Menu",
                    "간단한 버튼 UI와 종료 popup 예제를 제공한다.");
 
   auto &dispatcher = ECS.ctx().get<entt::dispatcher>();
-  if (ImGui::Button("Start Scenario", ImVec2(220.0f, 40.0f))) {
-    dispatcher.enqueue<SceneTransitionRequest>(SceneTransitionRequest{SceneId::Scenarios});
+  {
+    ImVec2 _pos = ImGui::GetCursorScreenPos();
+    if (ImGui::Button("Start Scenario", ImVec2(220.0f, 40.0f))) {
+      dispatcher.enqueue<SceneTransitionRequest>(SceneTransitionRequest{SceneId::Scenarios});
+    }
+    REG_WIDGET(ECS, "Start Scenario", (int)_pos.x, (int)_pos.y);
   }
-  if (ImGui::Button("Option", ImVec2(220.0f, 40.0f))) {
-    dispatcher.enqueue<SceneTransitionRequest>(SceneTransitionRequest{SceneId::Option});
+  {
+    ImVec2 _pos = ImGui::GetCursorScreenPos();
+    if (ImGui::Button("Option", ImVec2(220.0f, 40.0f))) {
+      dispatcher.enqueue<SceneTransitionRequest>(SceneTransitionRequest{SceneId::Option});
+    }
+    REG_WIDGET(ECS, "Option", (int)_pos.x, (int)_pos.y);
   }
-  if (ImGui::Button("Quit", ImVec2(220.0f, 40.0f))) {
-    ImGui::OpenPopup("Quit Confirmation");
+  {
+    ImVec2 _pos = ImGui::GetCursorScreenPos();
+    if (ImGui::Button("Quit", ImVec2(220.0f, 40.0f))) {
+      ImGui::OpenPopup("Quit Confirmation");
+    }
+    REG_WIDGET(ECS, "Quit", (int)_pos.x, (int)_pos.y);
   }
 
   if (ImGui::BeginPopupModal("Quit Confirmation", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -66,7 +74,18 @@ void OnRender(entt::registry &ECS, float dt) {
     }
     ImGui::EndPopup();
   }
+}
 
+/**
+ * @brief 매 프레임 Main Menu 씬 UI를 렌더링한다.
+ *
+ * @param[in,out] ECS ECS 레지스트리
+ * @param[in] dt  프레임 경과 시간 (초, OnEnter/OnExit 는 0.0f)
+ */
+void OnRender(entt::registry &ECS, float dt) {
+  (void)dt;
+  BeginFullscreenUi("Main Menu");
+  UI_MainMenu(ECS);
   EndFullscreenUi();
 }
 

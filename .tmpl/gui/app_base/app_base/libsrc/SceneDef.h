@@ -7,8 +7,10 @@
 #include <string>
 #include <thread>
 #include <unordered_set>
+#include <vector>
 
 #include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_events.h>
 
 #include "scenes/SceneMap.h"
 
@@ -143,3 +145,54 @@ struct InputState {
   bool IsMousePressed(int btn) const       { return mouseButtonsPressed.count(btn) > 0; }
   bool IsMouseReleased(int btn) const      { return mouseButtonsReleased.count(btn) > 0; }
 };
+
+/**
+ * @brief 위젯의 화면 좌표를 저장하는 항목이다.
+ *
+ * REG_WIDGET 매크로로 UI 함수 내에서 등록하고,
+ * 테스트에서 위젯 이름으로 좌표를 조회해 가상 클릭을 수행한다.
+ */
+struct WidgetPos {
+  int iX = 0;  ///< 화면 X 좌표 (픽셀)
+  int iY = 0;  ///< 화면 Y 좌표 (픽셀)
+};
+
+/**
+ * @brief 위젯 좌표 레지스트리이다.
+ *
+ * entt ctx 에 등록되며 "함수명:위젯명" 키로 WidgetPos 를 보관한다.
+ * UI_XXX 함수 내에서 REG_WIDGET 매크로로 자동 등록된다.
+ *
+ * 사용 예:
+ *   auto &reg = ECS.ctx().get<WidgetRegistry_T>();
+ *   auto it   = reg.map.find("UI_Title:Click Here");
+ */
+struct WidgetRegistry_T {
+  std::map<std::string, WidgetPos> map;  ///< "함수명:위젯명" -> 좌표
+};
+
+/**
+ * @brief 테스트용 외부 SDL 이벤트 주입 컨텍스트이다.
+ *
+ * 테스트에서 vecEvents 에 SDL_Event 를 push 하면
+ * ProcessSdlEvents() 가 매 프레임 1개씩 SDL_PushEvent 로 주입한다.
+ */
+struct ExtEvt_T {
+  std::vector<SDL_Event> vecEvents;  ///< 주입 대기 중인 SDL 이벤트 목록
+};
+
+/**
+ * @brief 현재 UI 함수 이름과 위젯 이름으로 WidgetRegistry_T 에 좌표를 등록한다.
+ *
+ * @param ECS   entt::registry (ctx 에 WidgetRegistry_T 가 emplace 되어 있어야 한다)
+ * @param Name  위젯 식별 이름 (문자열 리터럴)
+ * @param X     화면 X 좌표
+ * @param Y     화면 Y 좌표
+ */
+#define REG_WIDGET(ECS, Name, X, Y)                                       \
+  do {                                                                     \
+    if ((ECS).ctx().contains<WidgetRegistry_T>()) {                       \
+      std::string _key = std::string(__FUNCTION__) + ":" + (Name);        \
+      (ECS).ctx().get<WidgetRegistry_T>().map[_key] = WidgetPos{(X),(Y)}; \
+    }                                                                      \
+  } while (0)
