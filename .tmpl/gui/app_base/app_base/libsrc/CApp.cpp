@@ -306,6 +306,10 @@ private:
   /**
    * @brief 씬 전이 타이머를 갱신하고 단계별 상태를 진행시킨다.
    *
+   * TearingDown/Loading 페이즈에서 각각 exitTasks/enterTasks 큐를
+   * 매 프레임 1개씩 메인 스레드에서 실행한다.
+   * 태스크 실행 후 즉시 return 하여 다음 프레임에 로딩 화면이 렌더링되도록 한다.
+   *
    * @param[in,out] ECS            ECS 레지스트리
    * @param[in]     dbTimeDiff_SEC 실제 경과 시간(초)
    */
@@ -326,39 +330,44 @@ private:
 
     if (runtime.phase == TransitionPhase::TearingDown) {
       if (!runtime.phaseWorkDone) {
-        // worker thread 가 아직 시작 안 됐으면 시작
-        if (!runtime.workerThread.joinable()) {
-          auto &lc = ECS.ctx().get<SceneLoadingContext>();
-          lc.fProgress.store(0.0f);
-          lc.szStatus.store("정리 시작...");
-          runtime.lifecycleNote = std::string("Running OnExit during ") + ToString(runtime.phase);
-          SceneId scene = runtime.activeScene;
-          runtime.workerThread = std::thread([this, &ECS, scene, &lc]() {
-            InvokeOnExit(ECS, scene);
-            if (lc.fProgress.load() < 1.0f) lc.fProgress.store(1.0f);
-          });
-        }
-        // worker thread 완료 여부 폴링
         auto &lc = ECS.ctx().get<SceneLoadingContext>();
-        if (lc.fProgress.load() >= 1.0f) {
-          runtime.workerThread.join();
-          runtime.phaseWorkDone = true;
-          runtime.exitCounts[runtime.activeScene] += 1;
-          if (runtime.exitAfterFinishing) {
-            runtime.lifecycleNote = "Application exit teardown completed during TearingDown";
-            runtime.shouldQuit = true;
-          } else {
-            runtime.lifecycleNote = std::string("OnExit completed during ") + ToString(runtime.phase);
-            runtime.phase = TransitionPhase::Loading;
-            runtime.phaseScreenPresented = false;
-            runtime.phaseWorkDone = false;
-            // Loading phase 스냅샷 갱신
-            lc.szPhase = ToString(runtime.phase);
+
+        // 최초 진입: OnExit 호출 → exitTasks 큐를 ECS.ctx() 에 등록
+        if (!runtime.phaseWorkStarted) {
+          runtime.phaseWorkStarted = true;
+          lc.fProgress = 0.0f;
+          lc.szStatus  = "정리 시작...";
+          runtime.lifecycleNote = std::string("Running OnExit during ") + ToString(runtime.phase);
+          InvokeOnExit(ECS, runtime.activeScene);
+        }
+
+        // 태스크 1개 실행
+        if (ECS.ctx().contains<LoadTaskQueue>()) {
+          auto &q = ECS.ctx().get<LoadTaskQueue>();
+          if (!q.empty()) {
+            q.front()(ECS);
+            q.pop();
+            return;
           }
+          ECS.ctx().erase<LoadTaskQueue>();
+        }
+
+        // 큐 소진 → 완료
+        runtime.phaseWorkDone = true;
+        runtime.exitCounts[runtime.activeScene] += 1;
+        if (runtime.exitAfterFinishing) {
+          runtime.lifecycleNote = "Application exit teardown completed during TearingDown";
+          runtime.shouldQuit = true;
+        } else {
+          runtime.lifecycleNote = std::string("OnExit completed during ") + ToString(runtime.phase);
+          runtime.phase = TransitionPhase::Loading;
+          runtime.phaseScreenPresented = false;
+          runtime.phaseWorkDone = false;
+          runtime.phaseWorkStarted = false;
+          lc.szPhase = ToString(runtime.phase);
         }
         return;
       }
-
       return;
     }
 
@@ -368,32 +377,39 @@ private:
       }
 
       if (!runtime.phaseWorkDone) {
-        // worker thread 가 아직 시작 안 됐으면 시작
-        if (!runtime.workerThread.joinable()) {
-          auto &lc = ECS.ctx().get<SceneLoadingContext>();
-          lc.fProgress.store(0.0f);
-          lc.szStatus.store("로딩 시작...");
-          runtime.lifecycleNote = std::string("Running OnEnter during ") + ToString(runtime.phase);
-          SceneId pending = *runtime.pendingScene;
-          runtime.workerThread = std::thread([this, &ECS, pending, &lc]() {
-            InvokeOnEnter(ECS, pending);
-            if (lc.fProgress.load() < 1.0f) lc.fProgress.store(1.0f);
-          });
-        }
-        // worker thread 완료 여부 폴링
         auto &lc = ECS.ctx().get<SceneLoadingContext>();
-        if (lc.fProgress.load() >= 1.0f) {
-          runtime.workerThread.join();
-          runtime.phaseWorkDone = true;
-          runtime.activeScene = *runtime.pendingScene;
-          runtime.enterCounts[runtime.activeScene] += 1;
-          runtime.pendingScene.reset();
-          runtime.phase = TransitionPhase::None;
-          runtime.phaseScreenPresented = false;
-          runtime.phaseWorkDone = false;
-          runtime.exitAfterFinishing = false;
-          runtime.lifecycleNote = std::string("Showing ") + ToString(runtime.activeScene) + " scene";
+
+        // 최초 진입: OnEnter 호출 → enterTasks 큐를 ECS.ctx() 에 등록
+        if (!runtime.phaseWorkStarted) {
+          runtime.phaseWorkStarted = true;
+          lc.fProgress = 0.0f;
+          lc.szStatus  = "로딩 시작...";
+          runtime.lifecycleNote = std::string("Running OnEnter during ") + ToString(runtime.phase);
+          InvokeOnEnter(ECS, *runtime.pendingScene);
         }
+
+        // 태스크 1개 실행
+        if (ECS.ctx().contains<LoadTaskQueue>()) {
+          auto &q = ECS.ctx().get<LoadTaskQueue>();
+          if (!q.empty()) {
+            q.front()(ECS);
+            q.pop();
+            return;
+          }
+          ECS.ctx().erase<LoadTaskQueue>();
+        }
+
+        // 큐 소진 → 완료
+        runtime.phaseWorkDone = true;
+        runtime.activeScene = *runtime.pendingScene;
+        runtime.enterCounts[runtime.activeScene] += 1;
+        runtime.pendingScene.reset();
+        runtime.phase = TransitionPhase::None;
+        runtime.phaseScreenPresented = false;
+        runtime.phaseWorkDone = false;
+        runtime.phaseWorkStarted = false;
+        runtime.exitAfterFinishing = false;
+        runtime.lifecycleNote = std::string("Showing ") + ToString(runtime.activeScene) + " scene";
         return;
       }
     }
@@ -481,8 +497,8 @@ private:
      " -> Loading 화면 표시 -> target scene OnEnter 수행 -> target scene 화면");
     ImGui::Spacing();
     // 진행도 표시
-    float progress      = lc.fProgress.load();
-    const char *status  = lc.szStatus.load();
+    float progress      = lc.fProgress;
+    const char *status  = lc.szStatus;
     ImGui::ProgressBar(progress, ImVec2(-1.0f, 0.0f));
     ImGui::Spacing();
     if (status && status[0] != '\0') {
@@ -515,6 +531,7 @@ private:
     runtime.phase = TransitionPhase::TearingDown;
     runtime.phaseScreenPresented = false;
     runtime.phaseWorkDone = false;
+    runtime.phaseWorkStarted = false;
     runtime.exitAfterFinishing = false;
     runtime.lifecycleNote = std::string("Starting ") + ToString(runtime.phase) + 
                             " for " + ToString(runtime.activeScene);
@@ -541,6 +558,7 @@ private:
     runtime.phase = TransitionPhase::TearingDown;
     runtime.phaseScreenPresented = false;
     runtime.phaseWorkDone = false;
+    runtime.phaseWorkStarted = false;
     runtime.exitAfterFinishing = true;
     runtime.lifecycleNote = std::string("Starting ") + ToString(runtime.phase) +
                             " for application exit";

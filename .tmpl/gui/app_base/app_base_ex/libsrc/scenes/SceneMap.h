@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <map>
+#include <queue>
 
 #include <entt/entt.hpp>
 
@@ -44,15 +45,28 @@ inline const char *ToString(const SceneId scene) {
 using SceneHook = std::function<void(entt::registry &, float)>;
 
 /**
+ * @brief 씬 로딩/정리 태스크 타입.
+ *
+ * OnEnter/OnExit 에서 태스크 큐에 등록하면 CApp 메인 루프가
+ * 매 프레임 1개씩 메인 스레드에서 실행한다.
+ * SDL 렌더러 조작(CreateTexture 등)이 가능하고, 태스크 사이마다
+ * RenderTransitionScreen 이 호출되어 로딩 화면이 갱신된다.
+ */
+using LoadTask      = std::function<void(entt::registry &)>;
+using LoadTaskQueue = std::queue<LoadTask>;
+
+/**
  * @brief 씬 하나에 연결된 생명주기 훅 집합이다.
  *
+ * onEnter/onExit: 태스크 큐에 LoadTask 를 등록하는 역할만 수행한다.
+ *   실제 작업은 enterTasks/exitTasks 큐에서 메인 스레드가 1개씩 꺼내 실행한다.
  * onUpdate 는 선택적이며 nullptr 이면 해당 씬에서 게임 로직 갱신이 수행되지 않는다.
  */
 struct SceneDefinition {
-  SceneHook onEnter;   ///< 씬 진입 시 1회 호출
-  SceneHook onExit;    ///< 씬 이탈 시 1회 호출
-  SceneHook onRender;  ///< 매 프레임 렌더링 호출 (필수)
-  SceneHook onUpdate;  ///< 매 프레임 게임 로직 갱신. nullptr 이면 스킵.
+  SceneHook      onEnter;    ///< 태스크 큐 등록 (실제 작업은 ECS.ctx()<LoadTaskQueue> 에서)
+  SceneHook      onExit;     ///< 태스크 큐 등록 (실제 작업은 ECS.ctx()<LoadTaskQueue> 에서)
+  SceneHook      onRender;   ///< 매 프레임 렌더링 호출 (필수)
+  SceneHook      onUpdate;   ///< 매 프레임 게임 로직 갱신. nullptr 이면 스킵.
 };
 
 /**

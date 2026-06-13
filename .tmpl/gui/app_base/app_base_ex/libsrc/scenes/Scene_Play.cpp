@@ -537,118 +537,122 @@ void HudSystem(entt::registry &ECS, float dt) {
 // =============================================================================
 
 /**
- * @brief Play 씬 진입 시 호출된다.
+ * @brief Play 씬 진입 시 호출된다. enterTasks 큐에 로딩 작업을 등록한다.
  *
- * CommandBuffer 를 ctx 에 등록하고, PlaySceneTag 가 붙은 entity 를 생성한다.
- *
- * 생성 Entity:
- * - 삼각형 : Transform + RotationSpeed + TriangleShape + Color(Red) + PlaySceneTag
- * - 원     : Transform + CircleShape + ScoreCounter + Color(Green) + PlaySceneTag
- * - 사각형 : Transform + RectShape + Color(Blue) + PlaySceneTag
+ * 실제 작업은 CApp 메인 루프가 enterTasks 에서 1개씩 꺼내 실행한다.
+ * 태스크 사이마다 RenderTransitionScreen 이 호출되어 로딩 화면이 갱신된다.
  *
  * @param ECS ECS 레지스트리
  * @param[in] dt  프레임 경과 시간 (초, OnEnter/OnExit 는 0.0f)
  */
 void OnEnter(entt::registry &ECS, float dt) {
+  (void)dt;
   OnGenericSceneEnter(ECS, SceneId::Play);
 
-  auto &lc = ECS.ctx().get<SceneLoadingContext>();
+  // OnEnter 는 태스크 큐 등록만 담당한다.
+  // CApp UpdateTransition 이 ECS.ctx()<LoadTaskQueue> 를 1개씩 메인 스레드에서 실행한다.
+  auto &taskQueue = ECS.ctx().contains<LoadTaskQueue>() ? (ECS.ctx().erase<LoadTaskQueue>(), ECS.ctx().emplace<LoadTaskQueue>()) : ECS.ctx().emplace<LoadTaskQueue>();
 
-  // 단계 1: 텍스처 로딩 시뮬레이션
-  lc.szStatus.store("텍스처 로딩 중...");
-  lc.fProgress.store(0.0f);
-  SDL_Delay(500);
+  // 태스크 1: CommandBuffer 등록 + 텍스처 로딩 시뮬레이션
+  taskQueue.push([](entt::registry &reg) {
+    auto &lc = reg.ctx().get<SceneLoadingContext>();
+    lc.szStatus = "텍스처 로딩 중...";
+    lc.fProgress = 0.0f;
+    reg.ctx().emplace<PlayCmdBuffer>();
+    SDL_Delay(500);
+  });
 
-  // CommandBuffer ctx 등록
-  ECS.ctx().emplace<PlayCmdBuffer>();
-  auto &cmb = ECS.ctx().get<PlayCmdBuffer>();
+  // 태스크 2: 오디오 로딩 시뮬레이션
+  taskQueue.push([](entt::registry &reg) {
+    auto &lc = reg.ctx().get<SceneLoadingContext>();
+    lc.szStatus = "오디오 리소스 로딩 중...";
+    lc.fProgress = 0.25f;
+    SDL_Delay(500);
+  });
 
-  // 단계 2: 오디오 리소스 로딩 시뮬레이션
-  lc.szStatus.store("오디오 리소스 로딩 중...");
-  lc.fProgress.store(0.25f);
-  SDL_Delay(500);
+  // 태스크 3: 엔티티 생성
+  taskQueue.push([](entt::registry &reg) {
+    auto &lc = reg.ctx().get<SceneLoadingContext>();
+    lc.szStatus = "게임 오브젝트 생성 중...";
+    lc.fProgress = 0.5f;
 
-  int winW = 0, winH = 0;
-  SDL_GetWindowSize(ECS.ctx().get<SDL2Ctx>().pWindow, &winW, &winH);
-  const float triR = (float)(winH / 3) / 4.0f;
+    auto &cmb = reg.ctx().get<PlayCmdBuffer>();
+    int winW = 0, winH = 0;
+    SDL_GetWindowSize(reg.ctx().get<SDL2Ctx>().pWindow, &winW, &winH);
+    const float triR = (float)(winH / 3) / 4.0f;
 
-  // 삼각형 entity
-  cmb.Add(CmdCreateEntity{[triR](entt::registry &reg, entt::entity e) {
-    reg.emplace<Transform>(e, 1.0f / 6.0f, 0.5f, 0.0f);
-    reg.emplace<RotationSpeed>(e, 1.26f);
-    reg.emplace<TriangleShape>(e, triR);
-    reg.emplace<Color>(e, (uint8_t)220, (uint8_t)50, (uint8_t)50);
-    reg.emplace<PlaySceneTag>(e);
-  }});
+    cmb.Add(CmdCreateEntity{[triR](entt::registry &r, entt::entity e) {
+      r.emplace<Transform>(e, 1.0f / 6.0f, 0.5f, 0.0f);
+      r.emplace<RotationSpeed>(e, 1.26f);
+      r.emplace<TriangleShape>(e, triR);
+      r.emplace<Color>(e, (uint8_t)220, (uint8_t)50, (uint8_t)50);
+      r.emplace<PlaySceneTag>(e);
+    }});
+    cmb.Add(CmdCreateEntity{[](entt::registry &r, entt::entity e) {
+      r.emplace<Transform>(e, 0.5f, 0.5f, 0.0f);
+      r.emplace<CircleShape>(e, 60.0f, 60.0f);
+      r.emplace<ScoreCounter>(e);
+      r.emplace<Color>(e, (uint8_t)50, (uint8_t)220, (uint8_t)50);
+      r.emplace<PlaySceneTag>(e);
+    }});
+    cmb.Add(CmdCreateEntity{[](entt::registry &r, entt::entity e) {
+      r.emplace<Transform>(e, 5.0f / 6.0f, 0.5f, 0.0f);
+      r.emplace<RectShape>(e, 60.0f);
+      r.emplace<Color>(e, (uint8_t)50, (uint8_t)50, (uint8_t)220);
+      r.emplace<PlaySceneTag>(e);
+    }});
+    SDL_Delay(500);
+  });
 
-  // 단계 3: 엔티티 생성 시뮬레이션
-  lc.szStatus.store("게임 오브젝트 생성 중...");
-  lc.fProgress.store(0.5f);
-  SDL_Delay(500);
-
-  // 원 entity (ScoreCounter 겸용)
-  cmb.Add(CmdCreateEntity{[](entt::registry &reg, entt::entity e) {
-    reg.emplace<Transform>(e, 0.5f, 0.5f, 0.0f);
-    reg.emplace<CircleShape>(e, 60.0f, 60.0f);
-    reg.emplace<ScoreCounter>(e);
-    reg.emplace<Color>(e, (uint8_t)50, (uint8_t)220, (uint8_t)50);
-    reg.emplace<PlaySceneTag>(e);
-  }});
-
-  // 사각형 entity
-  cmb.Add(CmdCreateEntity{[](entt::registry &reg, entt::entity e) {
-    reg.emplace<Transform>(e, 5.0f / 6.0f, 0.5f, 0.0f);
-    reg.emplace<RectShape>(e, 60.0f);
-    reg.emplace<Color>(e, (uint8_t)50, (uint8_t)50, (uint8_t)220);
-    reg.emplace<PlaySceneTag>(e);
-  }});
-
-  // 단계 4: 씬 초기화 시뮬레이션
-  lc.szStatus.store("씬 초기화 중...");
-  lc.fProgress.store(0.75f);
-  SDL_Delay(500);
-
-  // OnEnter 에서 즉시 Flush — 이 씬의 초기 entity 를 레지스트리에 반영
-  cmb.Flush(ECS);
-
-  // 완료
-  lc.szStatus.store("로딩 완료!");
-  lc.fProgress.store(1.0f);
+  // 태스크 4: 씬 초기화 + Flush
+  taskQueue.push([](entt::registry &reg) {
+    auto &lc = reg.ctx().get<SceneLoadingContext>();
+    lc.szStatus = "씬 초기화 중...";
+    lc.fProgress = 0.75f;
+    reg.ctx().get<PlayCmdBuffer>().Flush(reg);
+    lc.szStatus = "로딩 완료!";
+    lc.fProgress = 1.0f;
+    SDL_Delay(500);
+  });
 }
 
 /**
- * @brief Play 씬 이탈 시 호출된다.
- *
- * PlaySceneTag entity 를 일괄 destroy 하고 CommandBuffer ctx 를 해제한다.
+ * @brief Play 씬 이탈 시 호출된다. exitTasks 큐에 정리 작업을 등록한다.
  *
  * @param ECS ECS 레지스트리
  * @param[in] dt  프레임 경과 시간 (초, OnEnter/OnExit 는 0.0f)
  */
 void OnExit(entt::registry &ECS, float dt) {
+  (void)dt;
   OnGenericSceneExit(ECS, SceneId::Play);
 
-  auto &lc = ECS.ctx().get<SceneLoadingContext>();
+  auto &taskQueue = ECS.ctx().contains<LoadTaskQueue>() ? (ECS.ctx().erase<LoadTaskQueue>(), ECS.ctx().emplace<LoadTaskQueue>()) : ECS.ctx().emplace<LoadTaskQueue>();
 
-  // 단계 1: 게임 상태 저장 시뮬레이션
-  lc.szStatus.store("게임 상태 저장 중...");
-  lc.fProgress.store(0.0f);
-  SDL_Delay(500);
+  // 태스크 1: 게임 상태 저장 시뮬레이션
+  taskQueue.push([](entt::registry &reg) {
+    auto &lc = reg.ctx().get<SceneLoadingContext>();
+    lc.szStatus = "게임 상태 저장 중...";
+    lc.fProgress = 0.0f;
+    SDL_Delay(500);
+  });
 
-  // 씬 소유 entity 정리
-  auto view = ECS.view<PlaySceneTag>();
-  ECS.destroy(view.begin(), view.end());
+  // 태스크 2: entity 정리 + 오디오 해제 시뮬레이션
+  taskQueue.push([](entt::registry &reg) {
+    auto &lc = reg.ctx().get<SceneLoadingContext>();
+    lc.szStatus = "오디오 리소스 해제 중...";
+    lc.fProgress = 0.5f;
+    auto view = reg.view<PlaySceneTag>();
+    reg.destroy(view.begin(), view.end());
+    SDL_Delay(500);
+  });
 
-  // 단계 2: 오디오 리소스 해제 시뮬레이션
-  lc.szStatus.store("오디오 리소스 해제 중...");
-  lc.fProgress.store(0.5f);
-  SDL_Delay(500);
-
-  // CommandBuffer ctx 해제
-  ECS.ctx().erase<PlayCmdBuffer>();
-
-  // 완료
-  lc.szStatus.store("정리 완료!");
-  lc.fProgress.store(1.0f);
+  // 태스크 3: CommandBuffer ctx 해제
+  taskQueue.push([](entt::registry &reg) {
+    auto &lc = reg.ctx().get<SceneLoadingContext>();
+    lc.szStatus = "정리 완료!";
+    lc.fProgress = 1.0f;
+    reg.ctx().erase<PlayCmdBuffer>();
+  });
 }
 
 /**

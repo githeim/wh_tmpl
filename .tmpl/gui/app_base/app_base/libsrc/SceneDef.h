@@ -1,11 +1,9 @@
 #pragma once
 
-#include <atomic>
 #include <cstdint>
 #include <map>
 #include <optional>
 #include <string>
-#include <thread>
 #include <unordered_set>
 #include <vector>
 
@@ -63,26 +61,24 @@ struct AppQuitRequest {
 };
 
 /**
- * @brief 씬 전이 중 로딩/정리 진행도를 씬과 CApp.cpp 간에 공유하는 컨텍스트이다.
+ * @brief 씬 전이 중 로딩/정리 진행도를 씬 태스크와 CApp.cpp 간에 공유하는 컨텍스트이다.
  *
- * worker thread(OnEnter/OnExit)가 쓰고, main thread(렌더링)가 읽는다.
- * fProgress, szStatus 는 atomic 으로 thread-safe 하게 공유한다.
+ * OnEnter/OnExit 태스크(메인 스레드)가 쓰고, RenderTransitionScreen(메인 스레드)이 읽는다.
+ * 모두 메인 스레드에서 동작하므로 atomic 이 필요 없다.
  *
- * szPhase/szCurrentScene/szTargetScene 은 main thread 전용 스냅샷이다.
- * 메인 스레드가 전이 시작 시점에 한 번 세팅하고 만다는 의미에서의 스냅샷
- * 전이 시작 시 CApp.cpp 가 설정하고 RenderTransitionScreen 이 읽는다.
+ * szPhase/szCurrentScene/szTargetScene 은 전이 시작 시 CApp.cpp 가 설정하는 스냅샷이다.
  *
- * 사용 예:
+ * 사용 예 (OnEnter/OnExit 태스크 내부):
  *   auto &lc = ECS.ctx().get<SceneLoadingContext>();
- *   lc.fProgress.store(0.5f);
- *   lc.szStatus.store("텍스처 로딩 중...");
+ *   lc.fProgress = 0.5f;
+ *   lc.szStatus  = "텍스처 로딩 중...";
  *
- * 주의: szStatus 에는 문자열 리터럴("...") 만 store 한다.
+ * 주의: szStatus 에는 문자열 리터럴("...") 만 대입한다.
  *       로컬 변수나 std::string::c_str() 은 수명이 끝나면 dangling pointer 가 된다.
  */
 struct SceneLoadingContext {
-  std::atomic<float>        fProgress{0.0f};  ///< 진행도 (0.0 ~ 1.0)
-  std::atomic<const char *> szStatus{""};     ///< 현재 작업 설명 (문자열 리터럴 전용, worker thread 쓰기)
+  float        fProgress = 0.0f;  ///< 진행도 (0.0 ~ 1.0) — 메인 스레드 전용
+  const char * szStatus  = "";    ///< 현재 작업 설명 (문자열 리터럴 전용)
 
   // 전이 화면 표시용 스냅샷 — main thread 전용 (non-atomic)
   const char *szPhase        = "";  ///< ToString(phase) 스냅샷
@@ -101,6 +97,7 @@ struct SceneRuntime {
   TransitionPhase phase = TransitionPhase::None;  ///< 현재 씬 전이 단계
   bool phaseScreenPresented = false;              ///< 현재 phase 화면이 최소 1프레임 노출되었는지 여부
   bool phaseWorkDone = false;                     ///< 현재 phase의 핵심 작업(OnExit/OnEnter) 완료 여부
+  bool phaseWorkStarted = false;                  ///< OnEnter/OnExit 호출 및 태스크 큐 채우기 완료 여부
   bool exitAfterFinishing = false;                ///< 정리 완료 후 앱 종료 여부
   bool shouldQuit = false;                        ///< 메인 루프 종료 여부 플래그
   std::optional<SceneId> prevScene;               ///< 직전 씬 (전이 시 자동 기록)
@@ -108,7 +105,6 @@ struct SceneRuntime {
   std::string lifecycleNote = "Application booted"; ///< 라이프사이클 디버그용 메모
   std::map<SceneId, int> enterCounts;             ///< 각 씬별 진입(Enter) 횟수
   std::map<SceneId, int> exitCounts;              ///< 각 씬별 이탈(Exit) 횟수
-  std::thread workerThread;                       ///< OnEnter/OnExit worker thread (CApp.cpp 전용)
 };
 
 
