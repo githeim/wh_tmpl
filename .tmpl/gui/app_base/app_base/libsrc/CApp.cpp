@@ -400,7 +400,6 @@ private:
         }
 
         // 큐 소진 → 완료
-        runtime.phaseWorkDone = true;
         runtime.activeScene = *runtime.pendingScene;
         runtime.enterCounts[runtime.activeScene] += 1;
         runtime.pendingScene.reset();
