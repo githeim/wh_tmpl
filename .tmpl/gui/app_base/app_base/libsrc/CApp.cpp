@@ -317,22 +317,28 @@ private:
                         double dbTimeDiff_SEC) {
     (void)dbTimeDiff_SEC;
     auto &runtime = ECS.ctx().get<SceneRuntime>();
+
+    // [1] 전이 중이 아니면 즉시 탈출
     if (runtime.phase == TransitionPhase::None) {
       return;
     }
 
-    // 현재 phase 화면을 최소 1프레임 표시
+    // [2] 전이 화면을 최소 1프레임 표시한 뒤에 작업 진입
+    //     phaseScreenPresented 가 false 이면 이번 프레임은 화면만 보여주고 반환
     if (!runtime.phaseScreenPresented) {
       runtime.phaseScreenPresented = true;
       runtime.lifecycleNote = std::string("Transition screen presented for ") + ToString(runtime.phase);
       return;
     }
 
+    // [3] TearingDown — 현재 씬 OnExit 태스크 처리
     if (runtime.phase == TransitionPhase::TearingDown) {
+
+      // [3-a] 아직 작업 중인 경우
       if (!runtime.phaseWorkDone) {
         auto &lc = ECS.ctx().get<SceneLoadingContext>();
 
-        // 최초 진입: OnExit 호출 → exitTasks 큐를 ECS.ctx() 에 등록
+        // [3-a-i] 최초 진입: OnExit 호출 → exitTasks 큐를 ECS.ctx() 에 등록
         if (!runtime.phaseWorkStarted) {
           runtime.phaseWorkStarted = true;
           lc.fProgress = 0.0f;
@@ -341,7 +347,7 @@ private:
           InvokeOnExit(ECS, runtime.activeScene);
         }
 
-        // 태스크 1개 실행
+        // [3-a-ii] 태스크 큐에 남은 작업이 있으면 1개 실행 후 다음 프레임으로
         if (ECS.ctx().contains<LoadTaskQueue>()) {
           auto &q = ECS.ctx().get<LoadTaskQueue>();
           if (!q.empty()) {
@@ -352,7 +358,9 @@ private:
           ECS.ctx().erase<LoadTaskQueue>();
         }
 
-        // 큐 소진 → 완료
+        // [3-a-iii] 큐 소진 → OnExit 완료 처리
+        //   exitAfterFinishing: 앱 종료 요청이면 shouldQuit 세팅 후 TearingDown 유지
+        //   일반 씬 전환:       Loading phase 로 전진
         runtime.phaseWorkDone = true;
         runtime.exitCounts[runtime.activeScene] += 1;
         if (runtime.exitAfterFinishing) {
@@ -368,18 +376,24 @@ private:
         }
         return;
       }
+
+      // [3-b] phaseWorkDone == true 인 채로 도달: shouldQuit 처리 대기 중 (앱 종료 경로)
       return;
     }
 
+    // [4] Loading — 다음 씬 OnEnter 태스크 처리
     if (runtime.phase == TransitionPhase::Loading) {
+
+      // [4-a] pendingScene 이 없으면 (비정상) 대기
       if (!runtime.pendingScene.has_value()) {
         return;
       }
 
+      // [4-b] 아직 작업 중인 경우
       if (!runtime.phaseWorkDone) {
         auto &lc = ECS.ctx().get<SceneLoadingContext>();
 
-        // 최초 진입: OnEnter 호출 → enterTasks 큐를 ECS.ctx() 에 등록
+        // [4-b-i] 최초 진입: OnEnter 호출 → enterTasks 큐를 ECS.ctx() 에 등록
         if (!runtime.phaseWorkStarted) {
           runtime.phaseWorkStarted = true;
           lc.fProgress = 0.0f;
@@ -388,7 +402,7 @@ private:
           InvokeOnEnter(ECS, *runtime.pendingScene);
         }
 
-        // 태스크 1개 실행
+        // [4-b-ii] 태스크 큐에 남은 작업이 있으면 1개 실행 후 다음 프레임으로
         if (ECS.ctx().contains<LoadTaskQueue>()) {
           auto &q = ECS.ctx().get<LoadTaskQueue>();
           if (!q.empty()) {
@@ -399,7 +413,7 @@ private:
           ECS.ctx().erase<LoadTaskQueue>();
         }
 
-        // 큐 소진 → 완료
+        // [4-b-iii] 큐 소진 → OnEnter 완료, 씬 전환 확정
         runtime.activeScene = *runtime.pendingScene;
         runtime.enterCounts[runtime.activeScene] += 1;
         runtime.pendingScene.reset();
